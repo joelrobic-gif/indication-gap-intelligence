@@ -493,9 +493,8 @@ export default function IndicationGapIntelligence() {
   const [sortBy, setSortBy] = useState("composite");
   const [filterViability, setFilterViability] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [watchlist, setWatchlist] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("igi_watchlist") || "[]"); } catch { return []; }
-  });
+  const [watchlist, setWatchlist] = useState([]);
+  const [watchlistLoaded, setWatchlistLoaded] = useState(false);
   const [showWatchlistOnly, setShowWatchlistOnly] = useState(false);
   const [compareSelection, setCompareSelection] = useState([]);
   const [chatOpen, setChatOpen] = useState(false);
@@ -504,11 +503,22 @@ export default function IndicationGapIntelligence() {
   const [chatLoading, setChatLoading] = useState(false);
   const scrollRef = useRef(null);
   const chatEndRef = useRef(null);
+  const [toast, setToast] = useState(null);
 
   // Persist watchlist
+  // Hydrate watchlist from localStorage after mount (SSR-safe)
   useEffect(() => {
-    localStorage.setItem("igi_watchlist", JSON.stringify(watchlist));
-  }, [watchlist]);
+    try {
+      const stored = JSON.parse(localStorage.getItem("igi_watchlist") || "[]");
+      if (stored.length > 0) setWatchlist(stored);
+    } catch { /* ignore */ }
+    setWatchlistLoaded(true);
+  }, []);
+
+  // Persist watchlist changes (skip initial hydration write)
+  useEffect(() => {
+    if (watchlistLoaded) localStorage.setItem("igi_watchlist", JSON.stringify(watchlist));
+  }, [watchlist, watchlistLoaded]);
 
   const toggleWatchlist = useCallback((key) => {
     setWatchlist(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
@@ -531,7 +541,7 @@ export default function IndicationGapIntelligence() {
     setAnalysisResult(null);
     setCompareSelection([]);
     if (view === "detail") setView("dashboard");
-  }, [selectedCompany, homeCountry]);
+  }, [selectedCompany, homeCountry, view]);
 
   // Filtered + sorted gaps
   const processedGaps = useMemo(() => {
@@ -661,7 +671,7 @@ Answer concisely and with specific data from the context. If asked about a speci
       lines.push(`- ${g.molecule} -> ${g.indication} (Composite: ${g.scores.composite})`);
     });
     const text = lines.join("\n");
-    navigator.clipboard.writeText(text).then(() => alert("Report copied to clipboard!")).catch(() => {
+    navigator.clipboard.writeText(text).then(() => { setToast("Report copied to clipboard!"); setTimeout(() => setToast(null), 3000); }).catch(() => {
       const blob = new Blob([text], { type: "text/plain" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -843,7 +853,14 @@ Return this exact JSON:
 
   return (
     <div style={S.app}>
-      <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+      {/* Fonts loaded via layout.js <head> */}
+
+      {/* Toast notification */}
+      {toast && (
+        <div style={{ position: "fixed", top: 24, right: 24, zIndex: 9999, background: "linear-gradient(135deg, #22c55e, #16a34a)", color: "#fff", padding: "12px 24px", borderRadius: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, boxShadow: "0 8px 24px rgba(34,197,94,0.3)", animation: "fadeIn 0.2s ease" }}>
+          {toast}
+        </div>
+      )}
 
       {/* ═══ TOP BAR ═══ */}
       <div style={S.topBar}>
