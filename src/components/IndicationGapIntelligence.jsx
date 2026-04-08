@@ -504,6 +504,7 @@ export default function IndicationGapIntelligence() {
   const scrollRef = useRef(null);
   const chatEndRef = useRef(null);
   const [toast, setToast] = useState(null);
+  const [selectedMolecule, setSelectedMolecule] = useState(null);
 
   // Persist watchlist
   // Hydrate watchlist from localStorage after mount (SSR-safe)
@@ -540,8 +541,9 @@ export default function IndicationGapIntelligence() {
     setSelectedGap(null);
     setAnalysisResult(null);
     setCompareSelection([]);
-    if (view === "detail") setView("dashboard");
-  }, [selectedCompany, homeCountry, view]);
+    if (view === "detail" || view === "molecule") setView("dashboard");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCompany, homeCountry]);
 
   // Filtered + sorted gaps
   const processedGaps = useMemo(() => {
@@ -565,6 +567,29 @@ export default function IndicationGapIntelligence() {
       return b.scores.composite - a.scores.composite;
     });
   }, [gaps, filterViability, showWatchlistOnly, watchlist, searchQuery, sortBy]);
+
+  // ═══ MOLECULE REPORT DATA ═══
+  const moleculeReport = useMemo(() => {
+    if (!selectedMolecule) return null;
+    const mol = selectedCompany.molecules.find(m => m.name === selectedMolecule);
+    if (!mol) return null;
+    const allIndications = generateIndicationData(mol);
+    const molGaps = gaps.filter(g => g.molecule === mol.name);
+    const approvedIndications = allIndications.filter(ind => ind.countries.includes(homeCountry));
+    const avgComposite = molGaps.length > 0 ? Math.round(molGaps.reduce((s, g) => s + g.scores.composite, 0) / molGaps.length) : 0;
+    const avgPTRS = molGaps.length > 0 ? molGaps.reduce((s, g) => s + g.ptrs.ptrs, 0) / molGaps.length : 0;
+    const bestGap = molGaps.length > 0 ? molGaps.reduce((best, g) => g.scores.composite > best.scores.composite ? g : best) : null;
+    const totalCompetitors = molGaps.reduce((s, g) => s + g.competitors.length, 0);
+    const whitespace = molGaps.filter(g => g.competitors.length === 0).length;
+    const viabilityCounts = { Excellent: 0, Strong: 0, Moderate: 0, Low: 0 };
+    molGaps.forEach(g => { viabilityCounts[g.viability]++; });
+    const ptrsRates = PTRS_BASE_RATES[mol.ta] || PTRS_BASE_RATES.inflammation;
+    return {
+      mol, allIndications, molGaps, approvedIndications,
+      avgComposite, avgPTRS, bestGap, totalCompetitors, whitespace,
+      viabilityCounts, ptrsRates,
+    };
+  }, [selectedMolecule, selectedCompany, gaps, homeCountry]);
 
   // ═══ FEATURE #7: PORTFOLIO ANALYTICS ═══
   const portfolioStats = useMemo(() => {
@@ -951,6 +976,11 @@ Return this exact JSON:
             BACK
           </button>
         )}
+        {view === "molecule" && (
+          <button onClick={() => { setView("dashboard"); setSelectedMolecule(null); }} style={S.viewBtn(false)}>
+            BACK
+          </button>
+        )}
       </div>
 
       {/* ═══ COMPARE BAR (when selections exist) ═══ */}
@@ -975,7 +1005,7 @@ Return this exact JSON:
           {view === "dashboard" && (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 12 }}>
               {processedGaps.map((gap, i) => (
-                <div key={i} onClick={() => { setSelectedGap(gap); setView("detail"); setAnalysisResult(null); }}
+                <div key={i} onClick={e => { if (e.target.closest('[data-mol-link]')) return; setSelectedGap(gap); setView("detail"); setAnalysisResult(null); }}
                   style={{ ...S.card, borderColor: compareSelection.find(g => gapKey(g) === gapKey(gap)) ? "#a78bfa" : "#1e1e2e", position: "relative", overflow: "hidden" }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor = gap.color + "80"; e.currentTarget.style.transform = "translateY(-1px)"; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = compareSelection.find(g => gapKey(g) === gapKey(gap)) ? "#a78bfa" : "#1e1e2e"; e.currentTarget.style.transform = "none"; }}>
@@ -984,7 +1014,7 @@ Return this exact JSON:
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         <WatchlistStar gapKey={gapKey(gap)} watchlist={watchlist} toggle={toggleWatchlist} />
-                        <div style={{ fontSize: 15, fontWeight: 600 }}>{gap.molecule}</div>
+                        <div data-mol-link="true" onClick={e => { e.stopPropagation(); setSelectedMolecule(gap.molecule); setView("molecule"); }} style={{ fontSize: 15, fontWeight: 600, cursor: "pointer", borderBottom: "1px dashed #555570", paddingBottom: 1 }} title="View full molecule report">{gap.molecule}</div>
                       </div>
                       <div style={{ fontSize: 11, color: "#8888a8", marginLeft: 24 }}>{gap.moleculeClass} | {gap.ta}</div>
                     </div>
@@ -1071,7 +1101,9 @@ Return this exact JSON:
                   {/* Data rows */}
                   {molecules.map(mol => (
                     <Fragment key={mol.name}>
-                      <div style={{ padding: "6px 8px", fontWeight: 600, fontSize: 11, color: "#e8e8f0", display: "flex", alignItems: "center", background: "#0c0c14", borderRadius: 4 }}>
+                      <div onClick={() => { setSelectedMolecule(mol.name); setView("molecule"); }}
+                        style={{ padding: "6px 8px", fontWeight: 600, fontSize: 11, color: "#e8e8f0", display: "flex", alignItems: "center", background: "#0c0c14", borderRadius: 4, cursor: "pointer", borderBottom: "1px dashed #555570" }}
+                        title="View full molecule report">
                         {mol.name.split(" ")[0]}
                       </div>
                       {indicationList.map(ind => {
@@ -1292,7 +1324,7 @@ Return this exact JSON:
                     <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: "#8888a8", letterSpacing: 2, marginBottom: 4 }}>INDICATION GAP ANALYSIS</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <WatchlistStar gapKey={gapKey(selectedGap)} watchlist={watchlist} toggle={toggleWatchlist} />
-                      <div style={{ fontSize: 24, fontWeight: 700 }}>{selectedGap.molecule}</div>
+                      <div onClick={() => { setSelectedMolecule(selectedGap.molecule); setView("molecule"); }} style={{ fontSize: 24, fontWeight: 700, cursor: "pointer", borderBottom: "1px dashed #555570", paddingBottom: 2 }} title="View full molecule report">{selectedGap.molecule}</div>
                     </div>
                     <div style={{ fontSize: 14, color: "#8888a8" }}>{selectedGap.moleculeClass} | {selectedGap.ta?.toUpperCase()} | {selectedCompany.molecules.find(m => m.name === selectedGap.molecule)?.originalIndication}</div>
                     <div style={{ fontSize: 16, color: "#d4a853", fontWeight: 600, marginTop: 8 }}>{selectedGap.indication}</div>
@@ -1537,6 +1569,305 @@ Return this exact JSON:
               )}
             </div>
           )}
+
+          {/* ═══ MOLECULE REPORT VIEW ═══ */}
+          {view === "molecule" && moleculeReport && (() => {
+            const { mol, allIndications, molGaps, approvedIndications, avgComposite, avgPTRS, bestGap, totalCompetitors, whitespace, viabilityCounts, ptrsRates } = moleculeReport;
+            const homeC = COUNTRIES.find(c => c.code === homeCountry);
+            const compositeColor = avgComposite >= 75 ? "#34d399" : avgComposite >= 60 ? "#fbbf24" : avgComposite >= 45 ? "#60a5fa" : "#ef4444";
+            return (
+              <div>
+                {/* Molecule Header */}
+                <div style={{ background: "#12121a", border: "1px solid #1e1e2e", borderRadius: 12, padding: 24, marginBottom: 16, position: "relative", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, #d4a853, ${compositeColor})` }} />
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+                    <div>
+                      <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: "#8888a8", letterSpacing: 2, marginBottom: 4 }}>FULL MOLECULE REPORT</div>
+                      <div style={{ fontSize: 28, fontWeight: 700, color: "#e8e8f0" }}>{mol.name}</div>
+                      <div style={{ fontSize: 14, color: "#8888a8", marginTop: 4 }}>{mol.class} | {mol.ta.toUpperCase()} | ATC: {mol.atc}</div>
+                      <div style={{ fontSize: 13, color: "#d4a853", fontWeight: 500, marginTop: 6 }}>Original Indication: {mol.originalIndication}</div>
+                      <div style={{ fontSize: 12, color: "#8888a8", marginTop: 4 }}>Home Market: {homeC?.flag} {homeC?.name} ({homeC?.authority})</div>
+                    </div>
+                    <div style={{ display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
+                      <div style={{ textAlign: "center" }}>
+                        <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: "#8888a8", letterSpacing: 1, marginBottom: 4 }}>AVG COMPOSITE</div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 36, fontWeight: 700, color: compositeColor }}>{avgComposite}</div>
+                      </div>
+                      <div style={{ textAlign: "center" }}>
+                        <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: "#8888a8", letterSpacing: 1, marginBottom: 4 }}>AVG PTRS</div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 36, fontWeight: 700, color: "#a78bfa" }}>{Math.round(avgPTRS * 100)}%</div>
+                      </div>
+                      <div style={{ textAlign: "center" }}>
+                        <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: "#8888a8", letterSpacing: 1, marginBottom: 4 }}>GAPS</div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 36, fontWeight: 700, color: "#d4a853" }}>{molGaps.length}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Stats Grid */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, marginBottom: 16 }}>
+                  <div style={{ background: "#12121a", border: "1px solid #1e1e2e", borderRadius: 8, padding: 14, textAlign: "center" }}>
+                    <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: "#5555708a", letterSpacing: 1 }}>TOTAL INDICATIONS</div>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 24, fontWeight: 700, color: "#e8e8f0", marginTop: 4 }}>{allIndications.length}</div>
+                  </div>
+                  <div style={{ background: "#12121a", border: "1px solid #34d39930", borderRadius: 8, padding: 14, textAlign: "center" }}>
+                    <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: "#34d399", letterSpacing: 1 }}>APPROVED IN {homeC?.code}</div>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 24, fontWeight: 700, color: "#34d399", marginTop: 4 }}>{approvedIndications.length}</div>
+                  </div>
+                  <div style={{ background: "#12121a", border: "1px solid #d4a85330", borderRadius: 8, padding: 14, textAlign: "center" }}>
+                    <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: "#d4a853", letterSpacing: 1 }}>UNAPPROVED GAPS</div>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 24, fontWeight: 700, color: "#d4a853", marginTop: 4 }}>{molGaps.length}</div>
+                  </div>
+                  <div style={{ background: "#12121a", border: "1px solid #a78bfa30", borderRadius: 8, padding: 14, textAlign: "center" }}>
+                    <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: "#a78bfa", letterSpacing: 1 }}>WHITESPACE</div>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 24, fontWeight: 700, color: "#a78bfa", marginTop: 4 }}>{whitespace}</div>
+                  </div>
+                  <div style={{ background: "#12121a", border: "1px solid #ef444430", borderRadius: 8, padding: 14, textAlign: "center" }}>
+                    <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: "#ef4444", letterSpacing: 1 }}>COMPETITORS</div>
+                    <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 24, fontWeight: 700, color: "#ef4444", marginTop: 4 }}>{totalCompetitors}</div>
+                  </div>
+                </div>
+
+                {/* Viability Breakdown */}
+                <div style={{ background: "#12121a", border: "1px solid #1e1e2e", borderRadius: 10, padding: 16, marginBottom: 16 }}>
+                  <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: "#8888a8", letterSpacing: 2, marginBottom: 12 }}>GAP VIABILITY DISTRIBUTION</div>
+                  <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                    {[["Excellent", "#34d399"], ["Strong", "#fbbf24"], ["Moderate", "#60a5fa"], ["Low", "#ef4444"]].map(([label, color]) => (
+                      <div key={label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <div style={{ width: 10, height: 10, borderRadius: 2, background: color }} />
+                        <span style={{ fontSize: 12, color: "#e8e8f0", fontWeight: 600 }}>{label}: {viabilityCounts[label]}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {molGaps.length > 0 && (
+                    <div style={{ display: "flex", height: 8, borderRadius: 4, overflow: "hidden", marginTop: 12 }}>
+                      {[["Excellent", "#34d399"], ["Strong", "#fbbf24"], ["Moderate", "#60a5fa"], ["Low", "#ef4444"]].map(([label, color]) => (
+                        viabilityCounts[label] > 0 && <div key={label} style={{ flex: viabilityCounts[label], background: color }} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* PTRS Engine Breakdown */}
+                <div style={{ background: "#12121a", border: "1px solid #a78bfa30", borderRadius: 10, padding: 16, marginBottom: 16 }}>
+                  <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: "#a78bfa", letterSpacing: 2, marginBottom: 12 }}>PTRS ENGINE | {mol.ta.toUpperCase()} THERAPEUTIC AREA BASE RATES</div>
+                  <div style={{ fontSize: 11, color: "#8888a8", marginBottom: 12, lineHeight: 1.6 }}>
+                    PTRS (Probability of Technical & Regulatory Success) chains phase-transition probabilities from BIO/QLS 2024 data. Each gap's PTRS is the product of remaining phase transitions for that indication's current evidence stage.
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8, marginBottom: 12 }}>
+                    {[
+                      ["P1 -> P2", ptrsRates.p1_p2],
+                      ["P2 -> P3", ptrsRates.p2_p3],
+                      ["P3 -> NDA", ptrsRates.p3_nda],
+                      ["NDA -> Appr", ptrsRates.nda_appr],
+                      ["Overall LoA", ptrsRates.overall_loa],
+                    ].map(([label, rate]) => (
+                      <div key={label} style={{ background: "#0a0a10", borderRadius: 6, padding: 10, textAlign: "center" }}>
+                        <div style={{ fontSize: 9, color: "#5555708a", fontFamily: "'JetBrains Mono', monospace" }}>{label}</div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 700, color: "#a78bfa", marginTop: 4 }}>{Math.round(rate * 100)}%</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 10, color: "#5555708a", fontFamily: "'JetBrains Mono', monospace" }}>AVG DEVELOPMENT: {ptrsRates.avg_months} months</div>
+                </div>
+
+                {/* Scoring Methodology */}
+                <div style={{ background: "#12121a", border: "1px solid #d4a85330", borderRadius: 10, padding: 16, marginBottom: 16 }}>
+                  <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: "#d4a853", letterSpacing: 2, marginBottom: 12 }}>COMPOSITE SCORING METHODOLOGY</div>
+                  <div style={{ fontSize: 11, color: "#8888a8", lineHeight: 1.8 }}>
+                    Each indication gap is scored on a 7-factor composite (0-99):
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
+                    {[
+                      ["EVIDENCE", "20%", "#60a5fa", "Phase IV=0 (approved, no gap), Phase III=85, Phase II=60, Phase I=30"],
+                      ["BREADTH", "15%", "#a78bfa", "Countries approved x 12 (capped at 95). More approvals = more precedent"],
+                      ["REGULATORY", "15%", "#34d399", "4+ countries=90, 2-3=70, 1=50. Multi-jurisdiction approval eases path"],
+                      ["COMMERCIAL", "15%", "#fbbf24", "Patient population available=75, N/A=50. Market size proxy"],
+                      ["PTRS", "15%", "#a78bfa", "Phase-chain probability x 100. Higher = closer to approval"],
+                      ["UNMET NEED", "10%", "#ef4444", "GlobalData/IQVIA scale 0-100. 50 default if no specific data"],
+                      ["COMPETITIVE", "10%", "#d4a853", "0 competitors=95, 1-2=75, 3-4=55, 5+=35. Whitespace = advantage"],
+                    ].map(([label, weight, color, desc]) => (
+                      <div key={label} style={{ background: "#0a0a10", borderRadius: 6, padding: 10 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                          <span style={{ fontSize: 10, color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{label}</span>
+                          <span style={{ fontSize: 10, color: "#5555708a", fontFamily: "'JetBrains Mono', monospace" }}>{weight}</span>
+                        </div>
+                        <div style={{ fontSize: 10, color: "#8888a8", lineHeight: 1.5 }}>{desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: 12, padding: 10, background: "#d4a85308", borderRadius: 6, border: "1px solid #d4a85320" }}>
+                    <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: "#d4a853", marginBottom: 4 }}>VIABILITY CLASSIFICATION</div>
+                    <div style={{ fontSize: 11, color: "#8888a8" }}>
+                      <span style={{ color: "#34d399" }}>Excellent (75+)</span> | <span style={{ color: "#fbbf24" }}>Strong (60-74)</span> | <span style={{ color: "#60a5fa" }}>Moderate (45-59)</span> | <span style={{ color: "#ef4444" }}>Low (&lt;45)</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Approved Indications in Home Market */}
+                {approvedIndications.length > 0 && (
+                  <div style={{ background: "#12121a", border: "1px solid #34d39930", borderRadius: 10, padding: 16, marginBottom: 16 }}>
+                    <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: "#34d399", letterSpacing: 2, marginBottom: 12 }}>APPROVED IN {homeC?.name?.toUpperCase()} ({approvedIndications.length})</div>
+                    <div style={{ display: "grid", gap: 6 }}>
+                      {approvedIndications.map((ind, i) => (
+                        <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#34d39908", borderRadius: 6, border: "1px solid #34d39915" }}>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 500, color: "#e8e8f0" }}>{ind.indication}</div>
+                            <div style={{ fontSize: 10, color: "#34d399" }}>{ind.evidence} | Approved in {ind.countries.length} jurisdictions</div>
+                          </div>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 2, maxWidth: 200 }}>
+                            {ind.countries.map(c => <CountryPill key={c} code={c} active={true} />)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* All Indication Gaps - Full Breakdown */}
+                <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: "#d4a853", letterSpacing: 2, marginBottom: 12, marginTop: 8 }}>
+                  INDICATION GAPS — FULL SCORING BREAKDOWN ({molGaps.length})
+                </div>
+                {molGaps.sort((a, b) => b.scores.composite - a.scores.composite).map((gap, i) => (
+                  <div key={i} style={{ background: "#12121a", border: `1px solid ${gap.color}30`, borderRadius: 10, padding: 16, marginBottom: 12, position: "relative", overflow: "hidden", cursor: "pointer" }}
+                    onClick={() => { setSelectedGap(gap); setView("detail"); setAnalysisResult(null); }}>
+                    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: gap.color }} />
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10, flexWrap: "wrap", gap: 12 }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                          <WatchlistStar gapKey={gapKey(gap)} watchlist={watchlist} toggle={toggleWatchlist} />
+                          <div style={{ fontSize: 16, fontWeight: 600, color: "#d4a853" }}>{gap.indication}</div>
+                        </div>
+                        <div style={{ fontSize: 11, color: "#8888a8" }}>{gap.evidence} | {gap.patientPop} patients | {gap.competitors.length === 0 ? <span style={{ color: "#a78bfa" }}>NO COMPETITORS (WHITESPACE)</span> : `${gap.competitors.length} competitors`}</div>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <PTRSGauge ptrs={gap.ptrs} />
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 28, fontWeight: 700, color: gap.color }}>{gap.scores.composite}</div>
+                          <Tag color={gap.color}>{gap.viability}</Tag>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Jurisdiction Map */}
+                    <div style={{ marginBottom: 10 }}>
+                      <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: "#5555708a", marginBottom: 4 }}>APPROVED IN {gap.approvedIn.length} / {COUNTRIES.length} JURISDICTIONS</div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
+                        {COUNTRIES.map(c => <CountryPill key={c.code} code={c.code} active={gap.approvedIn.includes(c.code)} />)}
+                      </div>
+                    </div>
+
+                    {/* Score Breakdown with Logic */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 6, marginBottom: 10 }}>
+                      <div style={{ background: "#0a0a10", borderRadius: 6, padding: 8 }}>
+                        <div style={{ fontSize: 9, color: "#60a5fa", fontFamily: "'JetBrains Mono', monospace" }}>EVIDENCE (20%)</div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 700, color: "#60a5fa" }}>{gap.scores.evidence}</div>
+                        <div style={{ fontSize: 9, color: "#5555708a" }}>{gap.evidence}</div>
+                      </div>
+                      <div style={{ background: "#0a0a10", borderRadius: 6, padding: 8 }}>
+                        <div style={{ fontSize: 9, color: "#a78bfa", fontFamily: "'JetBrains Mono', monospace" }}>BREADTH (15%)</div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 700, color: "#a78bfa" }}>{gap.scores.breadth}</div>
+                        <div style={{ fontSize: 9, color: "#5555708a" }}>{gap.approvedIn.length} countries x 12</div>
+                      </div>
+                      <div style={{ background: "#0a0a10", borderRadius: 6, padding: 8 }}>
+                        <div style={{ fontSize: 9, color: "#34d399", fontFamily: "'JetBrains Mono', monospace" }}>REGULATORY (15%)</div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 700, color: "#34d399" }}>{gap.scores.regulatory}</div>
+                        <div style={{ fontSize: 9, color: "#5555708a" }}>{gap.approvedIn.length >= 4 ? "4+ jurisdictions" : gap.approvedIn.length >= 2 ? "2-3 jurisdictions" : "1 jurisdiction"}</div>
+                      </div>
+                      <div style={{ background: "#0a0a10", borderRadius: 6, padding: 8 }}>
+                        <div style={{ fontSize: 9, color: "#fbbf24", fontFamily: "'JetBrains Mono', monospace" }}>COMMERCIAL (15%)</div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 700, color: "#fbbf24" }}>{gap.scores.commercial}</div>
+                        <div style={{ fontSize: 9, color: "#5555708a" }}>{gap.patientPop !== "N/A" ? `${gap.patientPop} patients` : "No data"}</div>
+                      </div>
+                      <div style={{ background: "#0a0a10", borderRadius: 6, padding: 8 }}>
+                        <div style={{ fontSize: 9, color: "#a78bfa", fontFamily: "'JetBrains Mono', monospace" }}>PTRS (15%)</div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 700, color: "#a78bfa" }}>{Math.round(gap.ptrs.ptrs * 100)}</div>
+                        <div style={{ fontSize: 9, color: "#5555708a" }}>{gap.ptrs.phase} | {gap.ptrs.remaining}mo</div>
+                      </div>
+                      <div style={{ background: "#0a0a10", borderRadius: 6, padding: 8 }}>
+                        <div style={{ fontSize: 9, color: "#ef4444", fontFamily: "'JetBrains Mono', monospace" }}>UNMET NEED (10%)</div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 700, color: "#ef4444" }}>{gap.unmetNeed ? gap.unmetNeed.score : 50}</div>
+                        <div style={{ fontSize: 9, color: "#5555708a" }}>{gap.unmetNeed ? "Specific data" : "Default (no data)"}</div>
+                      </div>
+                      <div style={{ background: "#0a0a10", borderRadius: 6, padding: 8 }}>
+                        <div style={{ fontSize: 9, color: "#d4a853", fontFamily: "'JetBrains Mono', monospace" }}>COMPETITIVE (10%)</div>
+                        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 700, color: "#d4a853" }}>{gap.competitiveScore}</div>
+                        <div style={{ fontSize: 9, color: "#5555708a" }}>{gap.competitors.length} competitors</div>
+                      </div>
+                    </div>
+
+                    {/* Composite Formula */}
+                    <div style={{ background: "#0a0a10", borderRadius: 6, padding: 8, marginBottom: 8 }}>
+                      <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: "#d4a853", marginBottom: 4 }}>COMPOSITE FORMULA</div>
+                      <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: "#8888a8", lineHeight: 1.6 }}>
+                        ({gap.scores.evidence} x 0.20) + ({gap.scores.breadth} x 0.15) + ({gap.scores.regulatory} x 0.15) + ({gap.scores.commercial} x 0.15) + ({Math.round(gap.ptrs.ptrs * 100)} x 0.15) + ({gap.unmetNeed ? gap.unmetNeed.score : 50} x 0.10) + ({gap.competitiveScore} x 0.10) = <span style={{ color: gap.color, fontWeight: 700 }}>{gap.scores.composite}</span>
+                      </div>
+                    </div>
+
+                    {/* Unmet Need Detail */}
+                    {gap.unmetNeed && (
+                      <div style={{ background: "#ef444408", borderRadius: 6, padding: 8, marginBottom: 8, border: "1px solid #ef444415" }}>
+                        <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: "#ef4444", marginBottom: 4 }}>UNMET MEDICAL NEED</div>
+                        <div style={{ fontSize: 11, color: "#8888a8" }}><strong style={{ color: "#e8e8f0" }}>SoC:</strong> {gap.unmetNeed.currentSoC}</div>
+                        <div style={{ fontSize: 11, color: "#8888a8" }}><strong style={{ color: "#e8e8f0" }}>Gaps:</strong> {gap.unmetNeed.gaps}</div>
+                      </div>
+                    )}
+
+                    {/* Competitor List */}
+                    {gap.competitors.length > 0 && (
+                      <div style={{ background: "#ef444408", borderRadius: 6, padding: 8, border: "1px solid #ef444415" }}>
+                        <div style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: "#ef4444", marginBottom: 6 }}>COMPETITIVE PIPELINE ({gap.competitors.length})</div>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                          {gap.competitors.map((c, j) => (
+                            <div key={j} style={{ background: "#0a0a10", borderRadius: 4, padding: "4px 8px", fontSize: 10 }}>
+                              <span style={{ color: "#e8e8f0", fontWeight: 600 }}>{c.company}</span>
+                              <span style={{ color: "#8888a8" }}> {c.molecule} </span>
+                              <Tag color={c.phase === "Approved" ? "#34d399" : c.phase.includes("III") ? "#fbbf24" : "#60a5fa"}>{c.phase}</Tag>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div style={{ marginTop: 8, fontSize: 10, color: "#5555708a", fontFamily: "'JetBrains Mono', monospace", textAlign: "right" }}>
+                      CLICK FOR FULL DETAIL + L99 ANALYSIS
+                    </div>
+                  </div>
+                ))}
+
+                {molGaps.length === 0 && (
+                  <div style={{ background: "#12121a", border: "1px solid #34d39930", borderRadius: 10, padding: 24, textAlign: "center" }}>
+                    <div style={{ fontSize: 16, color: "#34d399", fontWeight: 600, marginBottom: 8 }}>No Indication Gaps</div>
+                    <div style={{ fontSize: 13, color: "#8888a8" }}>{mol.name} is approved for all known indications in {homeC?.name}.</div>
+                  </div>
+                )}
+
+                {/* Best Opportunity Highlight */}
+                {bestGap && (
+                  <div style={{ background: "linear-gradient(135deg, #d4a85310, #34d39910)", border: "1px solid #d4a85340", borderRadius: 10, padding: 20, marginTop: 16 }}>
+                    <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: "#d4a853", letterSpacing: 2, marginBottom: 8 }}>TOP OPPORTUNITY RECOMMENDATION</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: "#e8e8f0", marginBottom: 4 }}>{bestGap.indication}</div>
+                    <div style={{ fontSize: 13, color: "#8888a8", lineHeight: 1.7 }}>
+                      With a composite score of <span style={{ color: bestGap.color, fontWeight: 700 }}>{bestGap.scores.composite}/99</span> and PTRS of <span style={{ color: "#a78bfa", fontWeight: 700 }}>{Math.round(bestGap.ptrs.ptrs * 100)}%</span>,
+                      this is {mol.name}'s highest-scoring indication gap in {homeC?.name}.
+                      {bestGap.competitors.length === 0 ? " This is a competitive whitespace opportunity with no known pipeline competitors." :
+                       ` There are ${bestGap.competitors.length} competitor(s) in the pipeline.`}
+                      {bestGap.unmetNeed ? ` Unmet medical need is rated ${bestGap.unmetNeed.score}/100.` : ""}
+                      {" "}Evidence level: {bestGap.evidence}. Estimated {bestGap.ptrs.remaining} months remaining to approval.
+                    </div>
+                    <button onClick={() => { setSelectedGap(bestGap); setView("detail"); setAnalysisResult(null); }} style={{
+                      marginTop: 12, padding: "10px 20px", background: "#d4a85315", border: "1px solid #d4a85340", borderRadius: 8,
+                      color: "#d4a853", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+                    }}>
+                      Run L99 Multi-Panel Analysis on This Gap
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
         </div>
 
         {/* ═══ FEATURE #4: AI CHAT PANEL ═══ */}
