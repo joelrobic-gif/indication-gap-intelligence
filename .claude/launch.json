@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "igi-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "3005"],
+      "port": 3005,
+      "cwd": "C:/Users/Robic/OneDrive/Desktop/IndicationGapIntel"
+    }
+  ]
+}
