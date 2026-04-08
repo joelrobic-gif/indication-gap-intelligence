@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, Fragment } from "react";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // INDICATION GAP INTELLIGENCE ENGINE v2.0
@@ -1053,8 +1053,8 @@ Return this exact JSON:
                   ))}
                   {/* Data rows */}
                   {molecules.map(mol => (
-                    <>
-                      <div key={mol.name} style={{ padding: "6px 8px", fontWeight: 600, fontSize: 11, color: "#e8e8f0", display: "flex", alignItems: "center", background: "#0c0c14", borderRadius: 4 }}>
+                    <Fragment key={mol.name}>
+                      <div style={{ padding: "6px 8px", fontWeight: 600, fontSize: 11, color: "#e8e8f0", display: "flex", alignItems: "center", background: "#0c0c14", borderRadius: 4 }}>
                         {mol.name.split(" ")[0]}
                       </div>
                       {indicationList.map(ind => {
@@ -1076,7 +1076,7 @@ Return this exact JSON:
                           </div>
                         );
                       })}
-                    </>
+                    </Fragment>
                   ))}
                 </div>
                 {/* Legend */}
