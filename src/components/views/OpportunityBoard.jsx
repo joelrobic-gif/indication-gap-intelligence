@@ -5,6 +5,7 @@
 
 import { memo, useState, useMemo } from "react";
 import { PTRSRing } from "../primitives/PTRSRing";
+import { CompanyLogo } from "../primitives/CompanyLogo";
 
 function money(n) {
   if (n == null) return "—";
@@ -113,9 +114,12 @@ const CaseCard = memo(function CaseCard({ c, onClick, onPin, entryDelay }) {
       onMouseEnter={e => { e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.3)"; }}
       onMouseLeave={e => { e.currentTarget.style.boxShadow = "none"; }}
     >
-      {/* Rank + company + pin */}
+      {/* Rank + company logo + pin */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-2)" }}>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-tertiary)", letterSpacing: 0.5 }}>#{c.rank} · {c.companyName}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-tertiary)", letterSpacing: 0.5, flexShrink: 0 }}>#{c.rank}</span>
+          <CompanyLogo companyId={c.companyId} companyName={c.companyName} size={18} showName />
+        </div>
         <div style={{ display: "flex", gap: 6, alignItems: "center" }} onClick={e => e.stopPropagation()}>
           {c.priority && <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, color: "var(--brand-gold)", border: "1px solid var(--brand-gold)", borderRadius: 2, padding: "1px 4px", letterSpacing: 0.5 }}>PRIORITY</span>}
           <button onClick={onPin} title={c.pinned ? "Unpin" : "Pin to top"} style={{ background: "none", border: "none", cursor: "pointer", color: c.pinned ? "var(--brand-gold)" : "var(--surface-border)", fontSize: 14, padding: 0 }}>⚲</button>

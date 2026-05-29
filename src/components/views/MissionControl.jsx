@@ -9,6 +9,7 @@
 
 import { memo } from "react";
 import { DEPARTMENTS } from "../../lib/engine/departments";
+import { CompanyLogo } from "../primitives/CompanyLogo";
 
 function timeAgo(ts, now) {
   const s = Math.max(0, Math.floor(((now || ts) - ts) / 1000));
@@ -49,10 +50,11 @@ export function MissionControl({ deptStats, feed, running, onOpenCase, now }) {
           }}>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: 1, color: "var(--text-tertiary)", textTransform: "uppercase" }}>On the line now</span>
             {onLine ? (
-              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-primary)" }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap", fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-primary)" }}>
+                <CompanyLogo companyId={onLine.companyId} companyName={onLine.company} size={18} showName />
+                <span style={{ color: "var(--text-tertiary)" }}>·</span>
                 <strong>{onLine.molecule}</strong>
-                <span style={{ color: "var(--text-tertiary)" }}> · {onLine.company} · </span>
-                {onLine.indication}
+                <span style={{ color: "var(--text-tertiary)" }}>· {onLine.indication}</span>
               </span>
             ) : (
               <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-tertiary)" }}>warming up…</span>
@@ -228,7 +230,7 @@ const FeedRow = memo(function FeedRow({ ev, now, onClick }) {
       <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-secondary)", lineHeight: 1.3 }}>{ev.indication}</div>
       <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--text-tertiary)" }}>{ev.action}</div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 2 }}>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--text-tertiary)", letterSpacing: 0.5 }}>{ev.company}</span>
+        <CompanyLogo companyId={ev.companyId} companyName={ev.company} size={13} showName />
         <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
           {ev.whitespace && <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, color: "var(--viability-excellent)", border: "1px solid rgba(52,211,153,0.3)", background: "rgba(52,211,153,0.08)", padding: "1px 4px", borderRadius: 2, letterSpacing: 0.5 }}>WHITESPACE</span>}
           <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--text-tertiary)" }}>{timeAgo(ev.ts, now)}</span>

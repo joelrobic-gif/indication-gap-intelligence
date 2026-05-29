@@ -16,7 +16,7 @@ import { computeUniverse } from "../lib/data/universe";
 import { DEPARTMENTS } from "../lib/engine/departments";
 import { runFunnel, funnelTiers, buildBusinessCases } from "../lib/engine/funnel";
 
-const STORAGE_KEY = "igi-engine-v3";
+const STORAGE_KEY = "igi-engine-v4";
 const FEED_CAP = 64;
 const DEFAULT_SPEED = 1200;
 
@@ -53,7 +53,7 @@ function reducer(state, action) {
         deptStats[s.dept] = {
           processed: prev.processed + 1,
           current: {
-            company: gap.companyName, molecule: gap.molecule, indication: gap.indication,
+            company: gap.companyName, companyId: gap.companyId, molecule: gap.molecule, indication: gap.indication,
             examined: s.examined, found: s.found, handoff: s.handoff, ok: s.ok,
           },
         };
@@ -62,6 +62,7 @@ function reducer(state, action) {
         id: `${action.payload.ts}-${state.cursor}`,
         ts: action.payload.ts,
         company: gap.companyName,
+        companyId: gap.companyId,
         molecule: gap.molecule,
         indication: gap.indication,
         action: strat.found,
