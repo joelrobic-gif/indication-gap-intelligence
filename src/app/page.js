@@ -1,5 +1,5 @@
-import IndicationGapIntelligence from "../components/IndicationGapIntelligence";
+import AppShell from "../components/AppShell";
 
 export default function Home() {
-  return <IndicationGapIntelligence />;
+  return <AppShell />;
 }

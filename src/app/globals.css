@@ -1,3 +1,99 @@
+/* ═══════════════════════════════════════════════════════════════════
+   INDICATION GAP INTELLIGENCE — DESIGN TOKENS
+   Shared with RobicDirect. Single source of truth for all surfaces.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Surface ── */
+  --surface-base:          #08080d;
+  --surface-raised:        #0e0e18;
+  --surface-overlay:       #14141f;
+  --surface-border:        #1e1e2e;
+  --surface-border-subtle: #151520;
+
+  /* ── Text ── */
+  --text-primary:   #e8e8f0;
+  --text-secondary: #9090b0;
+  --text-tertiary:  rgba(85, 85, 112, 0.54);
+  --text-inverse:   #08080d;
+
+  /* ── Brand ── */
+  --brand-gold:      #d4a853;
+  --brand-gold-dim:  rgba(212, 168, 83, 0.18);
+  --brand-gold-mid:  rgba(212, 168, 83, 0.12);
+  --brand-navy:      #0e1829;
+
+  /* ── Viability (shared with RobicDirect — lowercase canonical) ── */
+  --viability-excellent: #34d399;
+  --viability-strong:    #fbbf24;
+  --viability-moderate:  #60a5fa;
+  --viability-low:       #ef4444;
+
+  /* ── Entity palette: Okabe-Ito tinted toward brand navy ── */
+  --entity-1: #1a7fc1;  /* blue */
+  --entity-2: #d55e00;  /* vermillion */
+  --entity-3: #009e73;  /* green */
+  --entity-4: #cc79a7;  /* rose */
+  --entity-5: #56b4e9;  /* sky */
+  --entity-6: #e69f00;  /* amber */
+  --entity-7: #c9d62a;  /* yellow-green */
+  --entity-8: #8888a8;  /* muted (near-neutral for dark bg) */
+
+  /* ── Sequential scale (heatmap, single-hue, color-blind safe) ── */
+  --seq-0:   #0e1829;
+  --seq-20:  #0f2a45;
+  --seq-40:  #0e4272;
+  --seq-60:  #0e6099;
+  --seq-80:  #1280c4;
+  --seq-100: #38a8f0;
+
+  /* ── Typography scale ── */
+  --text-xs:   10px;
+  --text-sm:   12px;
+  --text-base: 14px;
+  --text-lg:   16px;
+  --text-xl:   20px;
+  --text-2xl:  28px;
+  --text-3xl:  40px;
+
+  /* ── Font families ── */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body:    'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  /* ── Spacing (4px base) ── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ── Radius ── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* ── Motion ── */
+  --duration-instant:  0ms;
+  --duration-fast:     120ms;
+  --duration-standard: 220ms;
+  --duration-enter:    350ms;
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out:      cubic-bezier(0, 0, 0.2, 1);
+
+  /* ── Comparison view ── */
+  --col-equality-width:   220px;
+  --sparkline-height:     24px;
+  --sparkline-baseline:   1px solid var(--surface-border);
+  --reference-line-color: rgba(212, 168, 83, 0.25);
+}
+
+/* ═══ RESET ═══ */
 *, *::before, *::after {
   margin: 0;
   padding: 0;
@@ -5,52 +101,89 @@
 }
 
 html, body {
-  background: #08080d;
-  color: #e8e8f0;
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: #0c0c14;
-}
-::-webkit-scrollbar-thumb {
-  background: #2a2a3e;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #3a3a4e;
-}
+/* ═══ TYPOGRAPHY UTILITIES ═══ */
+.font-display   { font-family: var(--font-display); }
+.font-body      { font-family: var(--font-body); }
+.font-mono      { font-family: var(--font-mono); }
+.tabular-nums   { font-variant-numeric: tabular-nums; }
+.optical-size   { font-optical-sizing: auto; }
 
-/* Selection */
+/* ═══ SCROLLBAR ═══ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--surface-base); }
+::-webkit-scrollbar-thumb { background: var(--surface-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #2a2a3e; }
+
+/* ═══ SELECTION ═══ */
 ::selection {
-  background: #d4a85340;
-  color: #e8e8f0;
+  background: var(--brand-gold-dim);
+  color: var(--text-primary);
 }
 
-/* Prevent layout shift on select elements */
-select option {
-  background: #12121a;
-  color: #e8e8f0;
+/* ═══ FOCUS ═══ */
+:focus-visible {
+  outline: 1px solid rgba(212, 168, 83, 0.5);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
-/* Smooth transitions */
-button {
-  font-family: inherit;
-  transition: all 0.15s ease;
-}
-button:hover {
-  filter: brightness(1.1);
+/* ═══ FORM ELEMENTS ═══ */
+select option { background: var(--surface-raised); color: var(--text-primary); }
+button { font-family: var(--font-body); }
+
+/* ═══ REDUCED MOTION ═══ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-/* Focus styles */
-input:focus, select:focus, button:focus-visible {
-  outline: 1px solid #d4a85380;
-  outline-offset: 1px;
+/* ═══ KEYFRAMES ═══ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ═══ PRINT ═══ */
+@media print {
+  :root { --surface-base: #fff; --surface-raised: #f5f5f5; --text-primary: #111; --text-secondary: #444; }
+  .no-print { display: none !important; }
+  .print-break { page-break-before: always; }
+}
+
+/* ═══ OBSERVABLE PLOT OVERRIDES ═══ */
+/* Ensure Plot SVGs respect our token system */
+figure[class*="plot"] {
+  margin: 0;
+  padding: 0;
+}
+figure[class*="plot"] svg {
+  overflow: visible;
+}
+
+/* ═══ VIABILITY COLOR UTILITIES ═══ */
+.viability-excellent { color: var(--viability-excellent); }
+.viability-strong    { color: var(--viability-strong); }
+.viability-moderate  { color: var(--viability-moderate); }
+.viability-low       { color: var(--viability-low); }
