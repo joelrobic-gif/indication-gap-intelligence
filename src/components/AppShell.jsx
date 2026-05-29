@@ -24,7 +24,7 @@ import { EngineBar } from "./shell/EngineBar";
 import { Funnel } from "./views/Funnel";
 import { MissionControl } from "./views/MissionControl";
 import { OpportunityBoard } from "./views/OpportunityBoard";
-import { CaseDrawer } from "./views/CaseDrawer";
+import { CaseReport } from "./views/CaseReport";
 
 // Legacy views (dynamic — code-split)
 const Dashboard  = dynamic(() => import("./views/Dashboard").then(m => ({ default: m.Dashboard })),   { ssr: false });
@@ -163,10 +163,10 @@ export default function AppShell() {
         {view === "portfolio" && <Portfolio gaps={gaps} company={company} stats={portfolioStats} homeCountry={homeCountry} />}
       </main>
 
-      {/* Business-case drawer */}
+      {/* Full business-case report */}
       {selectedCase && (
-        <CaseDrawer
-          caseObj={selectedCase} homeCountry={homeCountry} onClose={closeCase}
+        <CaseReport
+          caseObj={selectedCase} homeCountry={homeCountry} now={now} onClose={closeCase}
           onSetStatus={engine.setStatus} onSetNote={engine.setNote} onTogglePin={engine.togglePin}
         />
       )}
