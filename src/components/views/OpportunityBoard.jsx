@@ -22,6 +22,8 @@ const STATUS_META = {
   flagged:   { label: "Flagged",   color: "var(--viability-low)" },
 };
 
+const RENDER_CAP = 600;
+
 export function OpportunityBoard({ cases, onOpenCase, onTogglePin }) {
   const [sortBy, setSortBy] = useState("rank");
   const [company, setCompany] = useState("all");
@@ -87,9 +89,14 @@ export function OpportunityBoard({ cases, onOpenCase, onTogglePin }) {
         <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-tertiary)", marginLeft: "auto" }}>{shown.length} shown</span>
       </div>
 
-      {/* Grid */}
+      {/* Grid (capped for performance at scale; filter/search to see the rest) */}
+      {shown.length > RENDER_CAP && (
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-tertiary)", marginBottom: "var(--space-3)", letterSpacing: 0.5 }}>
+          Showing top {RENDER_CAP} of {shown.length} — refine with sort, company or search to surface the rest.
+        </div>
+      )}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "var(--space-4)" }}>
-        {shown.map((c, i) => (
+        {shown.slice(0, RENDER_CAP).map((c, i) => (
           <CaseCard key={c.key} c={c} onClick={() => onOpenCase(c.key)} onPin={() => onTogglePin(c.key)} entryDelay={i < 20 ? i * 25 : 0} />
         ))}
       </div>
