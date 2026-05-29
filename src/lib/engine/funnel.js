@@ -4,21 +4,70 @@
 // All deterministic — runs offline, forever, with zero backend.
 
 import { getCountry } from "../data/countries";
-import { evidenceTierLabel } from "../data/ptrs";
+import { evidenceTierLabel, PTRS_BASE_RATES } from "../data/ptrs";
+import { WEIGHTS } from "../scoring";
 
-// ── What each department "sees" and concludes for a single gap ──
+// ── What each department LOOKS AT (examined), CONCLUDES (found), and PASSES ON
+//    (handoff) for a single gap. `examined` is a list of [label, value] rows —
+//    the actual content the agent inspected. This powers the transparency view.
 export function runFunnel(gap, homeCountry) {
   const pct = Math.round(gap.ptrs.ptrs * 100);
   const homeName = getCountry(homeCountry).name;
   const nRivals = gap.competitors.length;
+  const n = gap.approvedIn.length;
+  const markets = gap.approvedIn.map(c => getCountry(c).code).join(", ");
+  const rates = PTRS_BASE_RATES[gap.ta] || PTRS_BASE_RATES.inflammation;
+  const ci = gap.ptrs.ci80 ? `${Math.round(gap.ptrs.ci80[0] * 100)}–${Math.round(gap.ptrs.ci80[1] * 100)}%` : "—";
+
   return [
-    { dept: "scout",        finding: `Candidate: ${gap.molecule} → ${gap.indication}`,                 value: gap.moleculeClass,             ok: true },
-    { dept: "cartographer", finding: `Approved in ${gap.approvedIn.length} markets · open in ${homeName}`, value: gap.scores.regulatory,         ok: gap.approvedIn.length > 0 },
-    { dept: "clinician",    finding: `${evidenceTierLabel(gap.evidence)} · PTRS ${pct}% (±CI)`,         value: gap.scores.evidence,           ok: gap.scores.evidence >= 60 },
-    { dept: "recon",        finding: nRivals === 0 ? "Whitespace — no direct rival tracked" : `${nRivals} rival program${nRivals > 1 ? "s" : ""} tracked`, value: gap.competitiveScore, ok: gap.competitiveScore >= 55 },
-    { dept: "economist",    finding: `${gap.patientPop !== "N/A" ? gap.patientPop + " patients" : "population unsized"} · unmet ${gap.scores.unmet}`, value: gap.scores.commercial, ok: gap.scores.unmet >= 60 || gap.scores.commercial >= 70 },
-    { dept: "risk",         finding: `Composite ${gap.scores.composite}/99 · ${gap.viabilityLabel}`,    value: gap.scores.composite,          ok: gap.scores.composite >= 60 },
-    { dept: "strategist",   finding: recommendedAction(gap),                                            value: gap.scores.composite,          ok: true },
+    {
+      dept: "scout", ok: true,
+      examined: [["Molecule", gap.molecule], ["Drug class", gap.moleculeClass], ["ATC code", gap.atc], ["Therapy area", gap.ta]],
+      found: `Candidate flagged — ${gap.molecule} for ${gap.indication}`,
+      handoff: `${gap.molecule} → ${gap.indication}`,
+    },
+    {
+      dept: "cartographer", ok: n > 0,
+      examined: [["Approved abroad", markets || "none"], ["Home market", homeName], ["Status at home", "No approval — OPEN"]],
+      found: `Gap confirmed — approved in ${n} market${n !== 1 ? "s" : ""}, open in ${homeName}`,
+      handoff: `Confirmed gap · breadth ${n} markets`,
+    },
+    {
+      dept: "clinician", ok: gap.scores.evidence >= 60,
+      examined: [["Evidence tier", evidenceTierLabel(gap.evidence)], ["TA base rate", `${gap.ta} · LoA ${Math.round(rates.overall_loa * 100)}%`], ["Est. time to approval", `~${gap.ptrs.remaining} mo`]],
+      found: `PTRS ${pct}% at ${gap.ptrs.phase} (80% CI ${ci})`,
+      handoff: `Probability of success: ${pct}%`,
+    },
+    {
+      dept: "recon", ok: gap.competitiveScore >= 55,
+      examined: nRivals === 0 ? [["Competitor programs", "None tracked"]] : gap.competitors.slice(0, 4).map(r => [r.company, `${r.molecule} · ${r.phase}`]),
+      found: nRivals === 0 ? "Open whitespace — no direct rival" : `${nRivals} rival program${nRivals > 1 ? "s" : ""} tracked`,
+      handoff: nRivals === 0 ? "Whitespace — first-mover position" : `Competitive field: ${nRivals} rivals`,
+    },
+    {
+      dept: "economist", ok: gap.scores.unmet >= 60 || gap.scores.commercial >= 70,
+      examined: [["Patient population", gap.patientPop !== "N/A" ? gap.patientPop : "unsized"], ["Unmet-need score", `${gap.scores.unmet}/100`], ["Commercial score", `${gap.scores.commercial}/100`]],
+      found: `Market signal — unmet ${gap.scores.unmet}, commercial ${gap.scores.commercial}`,
+      handoff: `Commercial attractiveness scored`,
+    },
+    {
+      dept: "risk", ok: gap.scores.composite >= 60,
+      examined: [
+        ["Evidence", `${gap.scores.evidence} × ${WEIGHTS.evidence}`],
+        ["Regulatory", `${gap.scores.regulatory} × ${WEIGHTS.regulatory}`],
+        ["PTRS", `${pct} × ${WEIGHTS.ptrs}`],
+        ["Unmet", `${gap.scores.unmet} × ${WEIGHTS.unmet}`],
+        ["Whitespace", `${gap.competitiveScore} × ${WEIGHTS.competitive}`],
+      ],
+      found: `Composite ${gap.scores.composite}/99 — ${gap.viabilityLabel}`,
+      handoff: `Risk-adjusted score: ${gap.scores.composite}`,
+    },
+    {
+      dept: "strategist", ok: true,
+      examined: [["Composite", `${gap.scores.composite}/99`], ["Viability", gap.viabilityLabel], ["Whitespace", nRivals === 0 ? "Yes" : "No"]],
+      found: recommendedAction(gap),
+      handoff: `Ranked business case → analyst desk`,
+    },
   ];
 }
 

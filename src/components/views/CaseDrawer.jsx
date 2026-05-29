@@ -93,7 +93,7 @@ export function CaseDrawer({ caseObj, homeCountry, onClose, onSetStatus, onSetNo
                       <div style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--text-tertiary)", letterSpacing: 0.5, textTransform: "uppercase" }}>{d.role}</div>
                     </div>
                     <div style={{ flex: 1, fontFamily: "var(--font-body)", fontSize: 11, color: s.ok ? "var(--text-primary)" : "var(--text-secondary)", lineHeight: 1.35 }}>
-                      {s.ok && <span style={{ color: "var(--viability-excellent)" }}>✓ </span>}{s.finding}
+                      {s.ok && <span style={{ color: "var(--viability-excellent)" }}>✓ </span>}{s.found}
                     </div>
                   </div>
                 );
