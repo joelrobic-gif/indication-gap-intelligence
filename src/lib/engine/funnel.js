@@ -6,6 +6,7 @@
 import { getCountry } from "../data/countries";
 import { evidenceTierLabel, PTRS_BASE_RATES } from "../data/ptrs";
 import { WEIGHTS } from "../scoring";
+import { computeFinancials } from "./financials";
 
 // ── What each department LOOKS AT (examined), CONCLUDES (found), and PASSES ON
 //    (handoff) for a single gap. `examined` is a list of [label, value] rows —
@@ -144,6 +145,7 @@ export function buildBusinessCases(universe, homeCountry, humanActions = {}) {
       priority: HIGH_VALUE(headline) && headline.scores.evidence >= 60 && headline.competitiveScore >= 55,
       action: recommendedAction(headline),
       narrative: narrative(headline, homeCountry),
+      financials: computeFinancials(headline, homeCountry),
       status: human.status || null,     // 'approved' | 'flagged' | 'reviewing' | null
       note: human.note || "",
       pinned: !!human.pinnedAt,

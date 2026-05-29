@@ -6,6 +6,15 @@
 import { memo, useState, useMemo } from "react";
 import { PTRSRing } from "../primitives/PTRSRing";
 
+function money(n) {
+  if (n == null) return "—";
+  const a = Math.abs(n), s = n < 0 ? "-" : "";
+  if (a >= 1e9) return `${s}$${(a / 1e9).toFixed(1)}B`;
+  if (a >= 1e6) return `${s}$${(a / 1e6).toFixed(0)}M`;
+  if (a >= 1e3) return `${s}$${(a / 1e3).toFixed(0)}K`;
+  return `${s}$${Math.round(a)}`;
+}
+
 const STATUS_META = {
   approved:  { label: "Approved",  color: "var(--viability-excellent)" },
   reviewing: { label: "Reviewing", color: "var(--viability-strong)" },
@@ -36,6 +45,7 @@ export function OpportunityBoard({ cases, onOpenCase, onTogglePin }) {
     }
     return [...r].sort((a, b) => {
       switch (sortBy) {
+        case "rnpv": return (b.financials?.rnpv ?? -Infinity) - (a.financials?.rnpv ?? -Infinity);
         case "composite": return b.bestComposite - a.bestComposite;
         case "whitespace": return b.whitespace - a.whitespace;
         case "gaps": return b.gapCount - a.gapCount;
@@ -64,7 +74,7 @@ export function OpportunityBoard({ cases, onOpenCase, onTogglePin }) {
       <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap", alignItems: "center", marginBottom: "var(--space-5)" }}>
         <input type="search" placeholder="Search molecule / indication…" value={q} onChange={e => setQ(e.target.value)}
           style={{ background: "var(--surface-base)", border: "1px solid var(--surface-border)", borderRadius: "var(--radius-md)", padding: "5px 10px", color: "var(--text-primary)", fontFamily: "var(--font-body)", fontSize: 12, outline: "none", width: 220 }} />
-        <Ctl label="Sort" value={sortBy} onChange={setSortBy} options={[["rank","Rank"],["composite","Composite"],["whitespace","Whitespace"],["gaps","# Gaps"],["company","Company"],["molecule","Molecule"]]} />
+        <Ctl label="Sort" value={sortBy} onChange={setSortBy} options={[["rank","Rank"],["rnpv","rNPV"],["composite","Composite"],["whitespace","Whitespace"],["gaps","# Gaps"],["company","Company"],["molecule","Molecule"]]} />
         <Ctl label="Company" value={company} onChange={setCompany} options={[["all","All"], ...companies.map(([id,name]) => [id, name])]} />
         <Ctl label="Status" value={statusFilter} onChange={setStatusFilter} options={[["all","All"],["approved","Approved"],["reviewing","Reviewing"],["flagged","Flagged"],["none","Unreviewed"]]} />
         <button onClick={() => setOnlyPriority(v => !v)} style={{
@@ -138,8 +148,9 @@ const CaseCard = memo(function CaseCard({ c, onClick, onPin, entryDelay }) {
 
       {/* Stats row */}
       <div style={{ display: "flex", gap: "var(--space-3)", flexWrap: "wrap", marginBottom: "var(--space-3)" }}>
+        {c.financials && <Stat label="rNPV" value={money(c.financials.rnpv)} color={c.financials.rnpv >= 0 ? "var(--viability-excellent)" : "var(--viability-low)"} />}
+        {c.financials && <Stat label="Peak sales" value={money(c.financials.peakSales)} />}
         <Stat label="Gaps" value={c.gapCount} />
-        <Stat label="Markets open" value={c.marketsOpen} />
         <Stat label="Whitespace" value={c.whitespace} color={c.whitespace ? "var(--viability-excellent)" : undefined} />
       </div>
 

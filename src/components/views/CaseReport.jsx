@@ -11,6 +11,7 @@ import { runFunnel } from "../../lib/engine/funnel";
 import { getCountry, getMarketValue, COUNTRIES } from "../../lib/data/countries";
 import { PTRS_BASE_RATES, evidenceTierLabel } from "../../lib/data/ptrs";
 import { WEIGHTS } from "../../lib/scoring";
+import { ASSUMPTIONS } from "../../lib/engine/assumptions";
 
 // ── Light report palette ──
 const INK = "#12161f", SUB = "#525a6b", FAINT = "#8b92a3", LINE = "#e4e7ee";
@@ -195,6 +196,70 @@ function StatCard({ label, value, sub, color }) {
   );
 }
 
+// ════════════════════ FINANCIAL CHARTS ════════════════════
+function money(n) {
+  const a = Math.abs(n), s = n < 0 ? "-" : "";
+  if (a >= 1e9) return `${s}$${(a / 1e9).toFixed(2)}B`;
+  if (a >= 1e6) return `${s}$${(a / 1e6).toFixed(0)}M`;
+  if (a >= 1e3) return `${s}$${(a / 1e3).toFixed(0)}K`;
+  return `${s}$${Math.round(a)}`;
+}
+
+function RevenueBars({ rows }) {
+  const max = Math.max(...rows.map(r => r.revenue), 1);
+  return (
+    <div style={{ display: "flex", alignItems: "flex-end", gap: 5, height: 170, padding: "0 4px" }}>
+      {rows.map((r, i) => (
+        <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%" }}>
+          <span style={{ font: "600 8px var(--font-mono)", color: SUB, marginBottom: 3 }}>{money(r.revenue)}</span>
+          <div title={`Year +${r.t}: ${money(r.revenue)}`} style={{ width: "100%", maxWidth: 38, height: `${(r.revenue / max) * 130}px`, background: NAVY, borderRadius: "3px 3px 0 0" }} />
+          <span style={{ font: "600 8px var(--font-mono)", color: FAINT, marginTop: 4 }}>Y+{r.t}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Waterfall({ steps }) {
+  const max = Math.max(...steps.map(s => Math.abs(s.value)), 1);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+      {steps.map((s, i) => (
+        <div key={i} style={{ display: "grid", gridTemplateColumns: "180px 1fr 90px", alignItems: "center", gap: 10 }}>
+          <span style={{ font: `${s.bold ? 700 : 500} 11px var(--font-body)`, color: s.bold ? INK : SUB }}>{s.label}</span>
+          <div style={{ height: 20, background: PAPER2, borderRadius: 4, border: `1px solid ${LINE}`, overflow: "hidden" }}>
+            <div style={{ width: `${(Math.abs(s.value) / max) * 100}%`, height: "100%", background: s.color, borderRadius: 4 }} />
+          </div>
+          <span style={{ font: "700 12px var(--font-mono)", color: s.value < 0 ? V.low : INK, textAlign: "right" }}>{money(s.value)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Tornado({ sensitivity, base }) {
+  const all = sensitivity.flatMap(s => [s.low, s.high, base]);
+  const lo = Math.min(...all), hi = Math.max(...all), span = (hi - lo) || 1;
+  const x = (v) => ((v - lo) / span) * 100;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {sensitivity.map((s, i) => {
+        const a = x(Math.min(s.low, s.high)), b = x(Math.max(s.low, s.high));
+        return (
+          <div key={i} style={{ display: "grid", gridTemplateColumns: "180px 1fr", alignItems: "center", gap: 10 }}>
+            <span style={{ font: "500 11px var(--font-body)", color: SUB }}>{s.driver}</span>
+            <div style={{ position: "relative", height: 22, background: PAPER2, borderRadius: 4, border: `1px solid ${LINE}` }}>
+              <div style={{ position: "absolute", left: `${a}%`, width: `${b - a}%`, top: 0, bottom: 0, background: `${GOLD}cc`, borderRadius: 4 }} />
+              <div style={{ position: "absolute", left: `${x(base)}%`, top: -3, bottom: -3, width: 2, background: NAVY }} />
+            </div>
+          </div>
+        );
+      })}
+      <div style={{ font: "500 9px var(--font-mono)", color: FAINT, textAlign: "right" }}>▏ vertical line = base-case rNPV {money(base)}</div>
+    </div>
+  );
+}
+
 // ════════════════════ MAIN REPORT ════════════════════
 export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, onSetNote, onTogglePin }) {
   if (!caseObj) return null;
@@ -209,6 +274,7 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
   const stages = runFunnel(g, homeCountry);
   const unmet = g.unmetNeed || null;
   const allGaps = [g, ...c.supporting];
+  const fin = c.financials;
 
   const mkts = [...g.approvedIn.map(code => ({ code, value: getMarketValue(code), approved: true })),
     { code: homeCountry, value: getMarketValue(homeCountry), approved: false }]
@@ -257,7 +323,7 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
        ["Quarterly", "Track competitor filings and evidence maturation."],
        ["Trigger", "Re-evaluate when a Phase III readout or competitor approval changes the calculus."]];
 
-  const TOTAL = 13;
+  const TOTAL = 16;
   const statusBtns = [["approved", "Approve", V.excellent], ["reviewing", "Reviewing", V.strong], ["flagged", "Flag", V.low]];
 
   return (
@@ -307,6 +373,11 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
                 <div style={{ font: "600 14px var(--font-body)", color: INK, marginTop: 12 }}>{c.action}</div>
                 <div style={{ font: "400 12px var(--font-body)", color: SUB, marginTop: 4 }}>Rank #{c.rank} of the active portfolio · {c.gapCount} indication gaps identified</div>
               </div>
+              <div style={{ width: 1, height: 70, background: LINE }} />
+              <div style={{ textAlign: "center" }}>
+                <div style={{ font: "700 30px var(--font-mono)", color: NAVY, lineHeight: 1 }}>{fin ? money(fin.rnpv) : "—"}</div>
+                <div style={{ font: "700 9px var(--font-mono)", color: FAINT, letterSpacing: "1px", marginTop: 6 }}>rNPV (RISK-ADJ.)</div>
+              </div>
             </div>
             <div style={{ font: "400 11px var(--font-mono)", color: FAINT, marginTop: 28 }}>Prepared by the autonomous swarm · {now ? fmtDate(now) : ""} · This document blends curated and model-generated intelligence and is for internal evaluation only.</div>
           </div>
@@ -319,6 +390,8 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
             <StatCard label="PTRS" value={`${ptrsPct}%`} color={DIM.ptrs} sub={`80% CI ${ci}`} />
             <StatCard label="Approved abroad" value={g.approvedIn.length} color={DIM.regulatory} sub={`of 20 markets`} />
             <StatCard label="Competition" value={g.competitors.length === 0 ? "Open" : g.competitors.length} color={g.competitors.length === 0 ? V.excellent : DIM.commercial} sub={g.competitors.length === 0 ? "whitespace" : "rival programs"} />
+            {fin && <StatCard label="rNPV" value={money(fin.rnpv)} color={fin.rnpv >= 0 ? V.excellent : V.low} sub="risk-adjusted" />}
+            {fin && <StatCard label="Peak sales" value={money(fin.peakSales)} color={DIM.commercial} sub={`${homeName}, annual`} />}
           </div>
           <P><strong style={{ color: INK }}>The opportunity.</strong> {c.narrative}</P>
           <P><strong style={{ color: INK }}>Why it matters.</strong> {c.molecule} is an established molecule with a known safety profile already marketed within the {c.companyName} portfolio. Extending its label to <strong style={{ color: INK }}>{g.indication}</strong> in {homeName} leverages existing manufacturing, an existing safety database and {g.approvedIn.length} prior regulatory {g.approvedIn.length === 1 ? "approval" : "approvals"} abroad — substantially de-risking development versus a new chemical entity.</P>
@@ -422,8 +495,66 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
           <HBars items={mkts} />
         </Page>
 
-        {/* ─── PAGE 8 · UNMET NEED ─── */}
-        <Page n={8} total={TOTAL} molecule={c.molecule} label="6. Unmet Need & Standard of Care">
+        {/* ─── PAGES 8-10 · COMMERCIAL FINANCIALS (rNPV) ─── */}
+        {fin && (
+          <>
+            <Page n={8} total={TOTAL} molecule={c.molecule} label="6. Commercial Financial Model">
+              <P>The model sizes the {homeName} opportunity bottom-up from the global indication population, then builds a risk-adjusted revenue forecast on the finance panel&apos;s indication-expansion benchmarks.{fin.popEstimated ? " The patient population for this indication was not directly available, so a therapy-area default is used (flagged below)." : ""}</P>
+              <H3>Market build</H3>
+              <Table head={["Driver", "Value"]} rows={[
+                ["Global addressable population", fin.popEstimated ? `~${Math.round(fin.globalPop).toLocaleString()} (est.)` : g.patientPop],
+                [`Home share — ${homeName} (value-weighted)`, `${fin.homeSharePct.toFixed(1)}%`],
+                ["Home addressable population", Math.round(fin.homeAddressable).toLocaleString()],
+                [`Peak penetration (${g.ta})`, `${fin.peakPenetrationPct}%`],
+                ["Treated patients at peak", Math.round(fin.treatedPeak).toLocaleString()],
+                ["Net price / patient / year", money(fin.annualPrice)],
+                ["Peak annual net sales", money(fin.peakSales)],
+              ]} />
+              <H3>Risk-adjusted revenue build</H3>
+              <P>Launch in ~{fin.launchYears} year{fin.launchYears > 1 ? "s" : ""}; ramp to peak over {fin.rampYears} year{fin.rampYears > 1 ? "s" : ""}; a {fin.window}-year commercial-advantage window, then generic erosion (≈{ASSUMPTIONS.erosionAtLoEPct}% of peak retained per year). Bars show modelled annual net sales by year from today.</P>
+              <RevenueBars rows={fin.revenueByYear} />
+            </Page>
+
+            <Page n={9} total={TOTAL} molecule={c.molecule} label="7. rNPV Valuation">
+              <div style={{ display: "flex", gap: 18, marginBottom: 18, flexWrap: "wrap" }}>
+                <StatCard label="rNPV" value={money(fin.rnpv)} color={fin.rnpv >= 0 ? V.excellent : V.low} sub="risk-adjusted NPV" />
+                <StatCard label="Unrisked NPV" value={money(fin.npv)} color={NAVY} sub="if approval certain" />
+                <StatCard label="Peak sales" value={money(fin.peakSales)} color={DIM.commercial} sub="annual, at peak" />
+                <StatCard label="Payback" value={fin.paybackYear ? `Y+${fin.paybackYear}` : "—"} color={DIM.ptrs} sub="from today" />
+              </div>
+              <H3>Valuation bridge</H3>
+              <Waterfall steps={[
+                { label: "Gross revenue (NPV)", value: fin.revenueNPV, color: NAVY },
+                { label: `Net of COGS + SG&A (${fin.netMarginPct}% margin)`, value: fin.commercialNPV, color: DIM.commercial },
+                { label: `Risk-adjusted × PTRS ${fin.ptrsPct}%`, value: fin.commercialNPV * (fin.ptrsPct / 100), color: DIM.ptrs },
+                { label: "Less remaining dev + filing", value: -(ASSUMPTIONS.costIncurrenceProb * fin.devNPV), color: V.low },
+                { label: "rNPV", value: fin.rnpv, color: GOLD, bold: true },
+              ]} />
+              <H3>Build</H3>
+              <Table head={["Line item", "NPV"]} rows={[
+                ["Gross revenue", money(fin.revenueNPV)],
+                [`COGS (${fin.cogsPct}%) + SG&A (${fin.sgaPct}%)`, `−${money(fin.revenueNPV - fin.commercialNPV)}`],
+                ["Commercial NPV (net)", money(fin.commercialNPV)],
+                [`× PTRS (${fin.ptrsPct}%)`, money(fin.commercialNPV * (fin.ptrsPct / 100))],
+                [`Less dev + filing × ${Math.round(ASSUMPTIONS.costIncurrenceProb * 100)}% incurrence`, `−${money(ASSUMPTIONS.costIncurrenceProb * fin.devNPV)}`],
+                ["rNPV", money(fin.rnpv)],
+              ]} />
+              <H3>Method</H3>
+              <P>{ASSUMPTIONS.rnpvMethod} Discount rate (WACC): {fin.wacc}%.</P>
+            </Page>
+
+            <Page n={10} total={TOTAL} molecule={c.molecule} label="8. Sensitivity Analysis">
+              <P>Tornado of rNPV to ± swings in each key driver, holding the others at base. <strong style={{ color: INK }}>{fin.sensitivity[0].driver.replace(/ \(.*/, "")}</strong> is the dominant value driver. The vertical line is the base-case rNPV of {money(fin.rnpv)}.</P>
+              <Tornado sensitivity={fin.sensitivity} base={fin.rnpv} />
+              <H3>Driver ranges</H3>
+              <Table head={["Driver", "Bear case", "Bull case"]} rows={fin.sensitivity.map(s => [s.driver, money(Math.min(s.low, s.high)), money(Math.max(s.low, s.high))])} />
+              <P>Per the panel, WACC is held as pure cost-of-capital and is <em>not</em> inflated for program risk — that risk is already carried by PTRS, so inflating both would double-count. The technical-failure mode is largely retired for an already-approved molecule, so PTRS swings a narrower band than penetration or price.</P>
+            </Page>
+          </>
+        )}
+
+        {/* ─── PAGE 11 · UNMET NEED ─── */}
+        <Page n={11} total={TOTAL} molecule={c.molecule} label="9. Unmet Need & Standard of Care">
           {unmet ? (
             <>
               <div style={{ display: "flex", gap: 24, alignItems: "center", marginBottom: 14 }}>
@@ -445,7 +576,7 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
         </Page>
 
         {/* ─── PAGE 9 · SCORING ─── */}
-        <Page n={9} total={TOTAL} molecule={c.molecule} label="7. Seven-Factor Scoring">
+        <Page n={12} total={TOTAL} molecule={c.molecule} label="10. Seven-Factor Scoring">
           <P>The composite viability score weights seven independent factors. The radar shows the profile; the table shows each factor&apos;s raw score, weight and weighted contribution.</P>
           <div style={{ display: "flex", gap: 20, alignItems: "center", flexWrap: "wrap" }}>
             <Radar axes={scoreAxes} />
@@ -460,7 +591,7 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
         </Page>
 
         {/* ─── PAGE 10 · ANALYTICAL TRAIL ─── */}
-        <Page n={10} total={TOTAL} molecule={c.molecule} label="8. Analytical Trail">
+        <Page n={13} total={TOTAL} molecule={c.molecule} label="11. Analytical Trail">
           <P>Every opportunity is assessed by seven specialist functions in sequence. Each examines specific data, reaches a finding, and hands its conclusion to the next. The full chain for this case:</P>
           {stages.map((s, i) => {
             const d = DEPARTMENT_BY_ID[s.dept];
@@ -477,13 +608,13 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
         </Page>
 
         {/* ─── PAGE 11 · RISK ─── */}
-        <Page n={11} total={TOTAL} molecule={c.molecule} label="9. Risk Assessment">
+        <Page n={14} total={TOTAL} molecule={c.molecule} label="12. Risk Assessment">
           <P>Key risks to realising this opportunity, with recommended mitigations.</P>
           <Table head={["Risk", "Level", "Description / mitigation"]} rows={risks.map(r => [r[0], r[1], <span key="x"><span style={{ color: INK }}>{r[2]}</span><br /><span style={{ color: GOLD, fontStyle: "italic" }}>Mitigation: {r[3]}</span></span>])} />
         </Page>
 
         {/* ─── PAGE 12 · SUPPORTING PORTFOLIO ─── */}
-        <Page n={12} total={TOTAL} molecule={c.molecule} label="10. Supporting Indication Portfolio">
+        <Page n={15} total={TOTAL} molecule={c.molecule} label="13. Supporting Indication Portfolio">
           <P>Beyond the headline opportunity, {c.molecule} carries <strong style={{ color: INK }}>{c.gapCount}</strong> total indication {c.gapCount === 1 ? "gap" : "gaps"} in {homeName}. Each represents an additional, independent expansion option that compounds the value of the asset.</P>
           <Table head={["Indication", "Evidence", "Markets", "PTRS", "Composite"]} rows={allGaps.map(x => [
             x.indication, evidenceTierLabel(x.evidence), x.approvedIn.length, `${Math.round(x.ptrs.ptrs * 100)}%`, x.scores.composite,
@@ -491,7 +622,7 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
         </Page>
 
         {/* ─── PAGE 13 · RECOMMENDATION ─── */}
-        <Page n={13} total={TOTAL} molecule={c.molecule} label="11. Recommendation & Next Steps">
+        <Page n={16} total={TOTAL} molecule={c.molecule} label="14. Recommendation & Next Steps">
           <div style={{ padding: "18px 22px", background: `${vc}0f`, borderLeft: `4px solid ${vc}`, borderRadius: 6, marginBottom: 18 }}>
             <div style={{ font: "700 10px var(--font-mono)", color: GOLD, letterSpacing: "1.5px" }}>RECOMMENDED ACTION</div>
             <div style={{ font: "600 18px var(--font-display)", color: NAVY, marginTop: 4 }}>{c.action}</div>
