@@ -1,9 +1,19 @@
 # ExpandRx — Session Transfer / Handoff
 
-**Last updated:** 2026-05-31 · **Branch:** `master` (clean, fully pushed) · **HEAD:** `35a0744+`
+**Last updated:** 2026-05-31 · **Branch:** `master` (clean, fully pushed) · **HEAD:** `f12f171+`
 
 A fresh Claude session should read this file first. It captures the complete state
 of the **ExpandRx** platform (formerly "Indication Gap Intelligence / IGI / Goodman").
+
+### Acquisition roadmap — ALL 4 PHASES EXECUTED (2026-05-31)
+Per `ACQUISITION.md`. Plus a marketing **Landing** page (default view, theme "clarity of signal").
+- **Phase 0** — LICENSE (proprietary), honest metadata + `robots:index:false`, synthetic-data banner on reports, engine unit tests (`test/`, node:test) + GitHub Actions CI (`.github/workflows/ci.yml`), `npm audit` high cleared.
+- **Phase 1** — provenance schema + real **source-verified cardiovascular slice** (46 molecules, 117 cited rows: FDA/EMA labels + NCT IDs + years), via `scripts/merge-verified.mjs`; `✓ CITED` chips + SOURCE-VERIFIED report block.
+- **Phase 2** — recalibrated + **cited** assumptions (`assumptionsVersion 2026.2`, `sources`); scoring/financials made testable (explicit `.js` specifiers) + golden tests (14 total); calibration harness `scripts/calibrate.mjs` → `CALIBRATION.md` (Brier/ECE); `app/error.js` + `app/not-found.js`.
+- **Phase 3** — `WHITEPAPER.md` (methodology + limitations), `PILOT.md` (Pharmascience design-partner POC template + price anchor), honest board scale relabel.
+- **Phase 4** — **outcome-feedback moat** (`src/lib/engine/outcomes.js`): capture Filed/Approved/Rejected/Parked → house-adjusted PTRS (Bayesian shrinkage), surfaced in report; CSV/JSON board export; `ENTERPRISE.md` (auth/tenancy path, gated on a pilot). Engine storage key now `igi-engine-v5`.
+- New deal docs to read: `ACQUISITION.md`, `WHITEPAPER.md`, `PILOT.md`, `CALIBRATION.md`, `ENTERPRISE.md`.
+- Regenerate verified slice: `node scripts/merge-verified.mjs <swarm-output.json>`; calibration: `node scripts/calibrate.mjs`; tests: `npm test`.
 
 ### Where everything lives (transfer package)
 - **GitHub remote (source of truth):** `git@github.com:joelrobic-gif/indication-gap-intelligence.git` — all work pushed to `master`. (Visibility should be **private**; verify with `gh repo view joelrobic-gif/indication-gap-intelligence --json visibility` once `gh auth login` is redone — the CLI token is currently expired.)
