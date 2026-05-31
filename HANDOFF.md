@@ -1,9 +1,16 @@
 # ExpandRx — Session Transfer / Handoff
 
-**Last updated:** 2026-05-31 · **Branch:** `master` (clean, fully pushed) · **HEAD:** `7b7287e`
+**Last updated:** 2026-05-31 · **Branch:** `master` (clean, fully pushed) · **HEAD:** `35a0744+`
 
 A fresh Claude session should read this file first. It captures the complete state
 of the **ExpandRx** platform (formerly "Indication Gap Intelligence / IGI / Goodman").
+
+### Where everything lives (transfer package)
+- **GitHub remote (source of truth):** `git@github.com:joelrobic-gif/indication-gap-intelligence.git` — all work pushed to `master`. (Visibility should be **private**; verify with `gh repo view joelrobic-gif/indication-gap-intelligence --json visibility` once `gh auth login` is redone — the CLI token is currently expired.)
+- **Local copy A (canonical working tree):** `C:\Users\joelr\OneDrive\Desktop\Desktop files\IndicationGapIntel\` — develop here.
+- **Local copy B (kept in sync):** `C:\Users\joelr\GitHub\indication-gap-intelligence\` — fast-forwarded to the same HEAD; either copy works.
+- **Portable git bundle (full history, offline transfer):** `…\Desktop files\ExpandRx-transfer.bundle` — clone/restore anywhere with `git clone ExpandRx-transfer.bundle ExpandRx`.
+- **Claude project memory:** `C:\Users\joelr\.claude\projects\C--Users-joelr-OneDrive-Desktop-IndicationGapIntel\memory\` — auto-loads in a new session.
 
 ---
 
