@@ -1,4 +1,4 @@
-# Indication Gap Intelligence v2.0 -- Design Specification
+# ExpandRx v2.0 -- Design Specification
 
 | Field            | Value                                     |
 |------------------|-------------------------------------------|
@@ -39,7 +39,7 @@
 
 ## 1. Executive Summary
 
-Indication Gap Intelligence is a standalone Next.js web application that provides pharmaceutical companies with an AI-powered platform for identifying drug indication expansion opportunities. The system cross-references global regulatory approvals across 12 jurisdictions and scores each gap using a 7-factor composite model enhanced by AI analysis.
+ExpandRx is a standalone Next.js web application that provides pharmaceutical companies with an AI-powered platform for identifying drug indication expansion opportunities. The system cross-references global regulatory approvals across 12 jurisdictions and scores each gap using a 7-factor composite model enhanced by AI analysis.
 
 The platform covers 6 generic/specialty pharmaceutical companies, 42 molecules, and 12 regulatory jurisdictions. It is modeled on capabilities found in enterprise platforms from IQVIA, Clarivate (Cortellis), BioMedTracker, Citeline, Evaluate Pharma, and GlobalData, but delivered as a focused, lightweight, zero-infrastructure application.
 
@@ -63,7 +63,7 @@ Generic and specialty pharmaceutical companies must continuously evaluate their 
 - **Unmet medical need**: How well does the current standard of care address the condition?
 - **Commercial viability**: Is the patient population large enough to justify development?
 
-These data points are scattered across IQVIA, Citeline, ClinicalTrials.gov, FDA/EMA/PMDA databases, and proprietary analyst reports. Indication Gap Intelligence unifies them into a single analytical surface.
+These data points are scattered across IQVIA, Citeline, ClinicalTrials.gov, FDA/EMA/PMDA databases, and proprietary analyst reports. ExpandRx unifies them into a single analytical surface.
 
 ---
 
@@ -76,7 +76,7 @@ These data points are scattered across IQVIA, Citeline, ClinicalTrials.gov, FDA/
 |                        BROWSER (Client)                            |
 |                                                                    |
 |  +--------------------------------------------------------------+  |
-|  |           IndicationGapIntelligence.jsx (SPA)                |  |
+|  |           ExpandRx.jsx (SPA)                |  |
 |  |                                                              |  |
 |  |  +----------+  +----------+  +----------+  +----------+     |  |
 |  |  |  PTRS    |  | Heatmap  |  | Pipeline |  | AI Chat  |     |  |
@@ -126,7 +126,7 @@ These data points are scattered across IQVIA, Citeline, ClinicalTrials.gov, FDA/
 src/
   app/
     layout.js              Root layout, metadata, global styles
-    page.js                Entry point, renders <IndicationGapIntelligence />
+    page.js                Entry point, renders <ExpandRx />
     globals.css            Dark theme, utility classes
     api/
       chat/
@@ -134,7 +134,7 @@ src/
       analyze/
         route.js           POST handler -- structured gap analysis via Anthropic
   components/
-    IndicationGapIntelligence.jsx   Monolithic client component (~2500 lines)
+    ExpandRx.jsx   Monolithic client component (~2500 lines)
                                     Contains all 8 features, data, and UI
 ```
 
@@ -924,7 +924,7 @@ This platform is modeled on capabilities found across 6 enterprise pharma intell
 ### Appendix B: File Structure Reference
 
 ```
-IndicationGapIntel/
+ExpandRx/
   docs/
     DESIGN_SPEC.md             <-- This document
   public/                      Static assets (favicon, etc.)
@@ -939,7 +939,7 @@ IndicationGapIntel/
       layout.js                Root layout component
       page.js                  Entry point
     components/
-      IndicationGapIntelligence.jsx   Main application component
+      ExpandRx.jsx   Main application component
   next.config.js               Next.js configuration
   package.json                 Dependencies and scripts
   railway.toml                 Railway deployment configuration

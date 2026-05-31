@@ -35,10 +35,7 @@ export function TopBar({
         color: "var(--brand-gold)", whiteSpace: "nowrap", letterSpacing: "-0.01em",
         fontOpticalSizing: "auto", flexShrink: 0,
       }}>
-        IGI
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, fontWeight: 400, color: "var(--text-tertiary)", marginLeft: 6, letterSpacing: 1, verticalAlign: "middle" }}>
-          EXPANDRX
-        </span>
+        ExpandRx
       </div>
 
       {/* Divider */}

@@ -1,7 +1,7 @@
 {
-  "name": "indication-gap-intelligence",
+  "name": "expandrx",
   "version": "2.0.0",
-  "description": "Cross-reference global drug indications with AI-powered L99 Panel analysis. PTRS, competitive intelligence, portfolio analytics.",
+  "description": "ExpandRx — cross-reference global drug indications with AI-powered L99 Panel analysis. PTRS, competitive intelligence, portfolio analytics.",
   "private": true,
   "scripts": {
     "dev": "next dev",

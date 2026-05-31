@@ -1,8 +1,8 @@
-// ═══ IGI SCORING ENGINE ═══
+// ═══ ExpandRx SCORING ENGINE ═══
 // 7-dimension composite scoring for indication-level gap analysis.
 // Distinct from RobicDirect's 5-dimension model (different analytical purpose):
 //   - RobicDirect: market opportunity scoring (which country to enter?)
-//   - IGI: technical feasibility scoring (can we get this approved?)
+//   - ExpandRx: technical feasibility scoring (can we get this approved?)
 // Viability labels harmonized with RobicDirect: lowercase (excellent/strong/moderate/low).
 
 import { COMPETITIVE_PIPELINE, UNMET_NEED } from "./data/pipeline";

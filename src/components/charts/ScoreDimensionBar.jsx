@@ -1,6 +1,6 @@
 "use client";
 // ═══ SCORE DIMENSION BARS ═══
-// Horizontal faceted bar chart for the 7 IGI scoring dimensions.
+// Horizontal faceted bar chart for the 7 ExpandRx scoring dimensions.
 // Each dimension gets its own bar with a shared 0-100 x-axis.
 // Ref. line at 50 marks the "median" baseline.
 // color: entity color from the comparator column assignment.

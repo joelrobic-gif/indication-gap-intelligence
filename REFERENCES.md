@@ -1,5 +1,5 @@
 # REFERENCES.md — Competitive Analysis
-## IndicationGapIntel L99 v3 | Phase 1 Reference-Site Catalog
+## ExpandRx L99 v3 | Phase 1 Reference-Site Catalog
 
 ---
 
@@ -23,7 +23,7 @@
 - Instant highlight-then-fade for selection (200ms opacity pulse)
 - Pan/zoom with CSS transform (no reflow)
 
-**Key takeaway for IGI:** Observable's rule is "if you have a table, ask if a chart answers faster." Every comparison surface in IGI should have at least one chart per row.
+**Key takeaway for ExpandRx:** Observable's rule is "if you have a table, ask if a chart answers faster." Every comparison surface in ExpandRx should have at least one chart per row.
 
 ---
 
@@ -45,7 +45,7 @@
 - Field focus: border animate-in on hover (no box-shadow — border only)
 - Drawer: spring animation from right edge
 
-**Key takeaway for IGI:** Airtable shows that switching between 6 views of the same data is more powerful than building 6 separate pages. IGI's dashboard/heatmap/comparator are the same data viewed differently — they should transition as a view-mode toggle, not separate routes.
+**Key takeaway for ExpandRx:** Airtable shows that switching between 6 views of the same data is more powerful than building 6 separate pages. ExpandRx's dashboard/heatmap/comparator are the same data viewed differently — they should transition as a view-mode toggle, not separate routes.
 
 ---
 
@@ -68,7 +68,7 @@
 - KPI labels: ALL CAPS, 10px, 120% letter-spacing
 - Body: 14px with 160% line-height — dense but breathable
 
-**Key takeaway for IGI:** Snowflake's KPI summary approach (big number + sparkline) should replace IGI's current hero stats section. PTRS should be a big typographic number, not just a gauge.
+**Key takeaway for ExpandRx:** Snowflake's KPI summary approach (big number + sparkline) should replace ExpandRx's current hero stats section. PTRS should be a big typographic number, not just a gauge.
 
 ---
 
@@ -92,7 +92,7 @@
 - Removing entity: cross-fade + collapse (250ms)
 - Hover: immediate (0ms) opacity boost on hovered entity across all linked charts
 
-**Key takeaway for IGI:** The killer feature isn't the data — it's the column-equality layout that lets execs scan 5 indications side-by-side in 10 seconds. IGI's comparator must use this model, not a card-per-molecule layout.
+**Key takeaway for ExpandRx:** The killer feature isn't the data — it's the column-equality layout that lets execs scan 5 indications side-by-side in 10 seconds. ExpandRx's comparator must use this model, not a card-per-molecule layout.
 
 ---
 
@@ -110,7 +110,7 @@
 - Clinical data: diverging scale (blue=below threshold, red=above threshold, white=at threshold)
 - Confidence intervals shown as filled ribbons, not error bars
 
-**Key takeaway for IGI:** Every PTRS and composite score should show a confidence interval. Point estimates alone mislead exec audiences — Tempus makes this non-negotiable in clinical visualization.
+**Key takeaway for ExpandRx:** Every PTRS and composite score should show a confidence interval. Point estimates alone mislead exec audiences — Tempus makes this non-negotiable in clinical visualization.
 
 ---
 
@@ -126,11 +126,11 @@
 - Monochromatic brand + 1 accent (deep green primary, hot yellow-green accent)
 - All data: grayscale base with accent for selected/highlighted entities
 
-**Key takeaway for IGI:** The Gantt pipeline view is exactly what IGI needs for "phase-over-time" competitive landscape. Recursion proves you don't need 8 colors if your spatial encoding is strong.
+**Key takeaway for ExpandRx:** The Gantt pipeline view is exactly what ExpandRx needs for "phase-over-time" competitive landscape. Recursion proves you don't need 8 colors if your spatial encoding is strong.
 
 ---
 
-## Chart Standardization Decision (7 chart types for IGI)
+## Chart Standardization Decision (7 chart types for ExpandRx)
 
 | Data Shape | Chart Type | Source of Truth |
 |---|---|---|

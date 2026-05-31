@@ -1,5 +1,5 @@
 # PROPOSAL.md — Direction + Design System
-## IndicationGapIntel L99 v3 | Phase 3 Gate
+## ExpandRx L99 v3 | Phase 3 Gate
 
 **Status: AWAITING JOEL SIGN-OFF. Do not execute Phase 4+ until approved.**
 
@@ -239,8 +239,8 @@ src/
 
 ### Data bridge (optional — flag for Joel)
 Phase 9 in the spec calls for cross-linking with RobicDirect. Two options:
-- **A (static parity):** Extend IGI's static data to match RobicDirect's 20 countries and scoring weights. Both tools remain independent.
-- **B (live bridge):** IGI fetches from RobicDirect's Express API (`/api/gaps`, `/api/molecules`). IGI becomes the comparison view; RobicDirect is the data source. Requires CORS config on RobicDirect.
+- **A (static parity):** Extend ExpandRx's static data to match RobicDirect's 20 countries and scoring weights. Both tools remain independent.
+- **B (live bridge):** ExpandRx fetches from RobicDirect's Express API (`/api/gaps`, `/api/molecules`). ExpandRx becomes the comparison view; RobicDirect is the data source. Requires CORS config on RobicDirect.
 
 Recommendation: **Option A first** (unblock Phase 4), flag B for Joel decision. A live bridge makes sense but adds deployment coupling — needs explicit sign-off.
 
@@ -254,13 +254,13 @@ All four questions resolved. Rationale for each: pick the choice that delivers m
 Fastest path to reference-bar-quality analytical charts. Composable marks system produces correct chart types (bump, ribbon, treemap, Gantt) without fighting a component library. No default ugly aesthetics. Recharts and Chart.js are banned. D3 raw reserved for the Gantt only (no Plot primitive exists for it).
 
 **2. RobicDirect data bridge → Live bridge (Option B) ✓**
-Single source of truth between IGI and RobicDirect drives adoption. An exec using both tools who sees different composite scores for the same molecule loses trust in both tools simultaneously. IGI will fetch from RobicDirect's Express API (`/api/gaps`, `/api/molecules`, `/api/countries`) using SWR with stale-while-revalidate caching — so IGI remains functional if RobicDirect is offline (last-known data shown with a staleness badge). CORS header added to RobicDirect's API routes.
+Single source of truth between ExpandRx and RobicDirect drives adoption. An exec using both tools who sees different composite scores for the same molecule loses trust in both tools simultaneously. ExpandRx will fetch from RobicDirect's Express API (`/api/gaps`, `/api/molecules`, `/api/countries`) using SWR with stale-while-revalidate caching — so ExpandRx remains functional if RobicDirect is offline (last-known data shown with a staleness badge). CORS header added to RobicDirect's API routes.
 
 **3. Country count → Extend to 20 ✓**
 More markets = more gaps surfaced per session = more value per login. 20 countries matches RobicDirect's canonical list. The 8 missing countries (DE, FR, IT, ES, MX, RU, SA, TR) get added to `generateIndicationData` pools with reasonable evidence mappings. Global coverage is table stakes for the exec audience.
 
-**4. Scoring methodology → Keep IGI's 7-dimension model ✓**
-IGI's analytical purpose is different from RobicDirect's: IGI answers "can we get this approved?" (technical/clinical feasibility), RD answers "which markets should we enter?" (commercial opportunity). PTRS, unmet need, and competitive density are all directly load-bearing for IGI's question — removing them would reduce analytical depth. Resolution: keep the 7-dimension composite, standardize viability tier labels to lowercase (excellent/strong/moderate/low) to match RobicDirect's visual language, and add a methodology tooltip on the composite score badge explaining the difference. Transparency beats false consistency.
+**4. Scoring methodology → Keep ExpandRx's 7-dimension model ✓**
+ExpandRx's analytical purpose is different from RobicDirect's: ExpandRx answers "can we get this approved?" (technical/clinical feasibility), RD answers "which markets should we enter?" (commercial opportunity). PTRS, unmet need, and competitive density are all directly load-bearing for ExpandRx's question — removing them would reduce analytical depth. Resolution: keep the 7-dimension composite, standardize viability tier labels to lowercase (excellent/strong/moderate/low) to match RobicDirect's visual language, and add a methodology tooltip on the composite score badge explaining the difference. Transparency beats false consistency.
 
 **5. AI model → claude-sonnet-4-20250514 ✓ (stays)**
 Sonnet hits the quality bar for L99 panel analysis at acceptable latency. Opus would improve multi-domain reasoning depth but adds ~4× cost and ~3× latency — not justified until usage data shows users are hitting sonnet's limits.

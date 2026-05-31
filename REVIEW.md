@@ -1,5 +1,5 @@
 # REVIEW.md — Current State Audit
-## IndicationGapIntel L99 v3 | Phase 2
+## ExpandRx L99 v3 | Phase 2
 
 **Persona:** Competitive intel director preparing a 5-indication head-to-head for a strategy offsite. Has 90 seconds to scan and identify which gaps to drill into.
 
@@ -18,7 +18,7 @@ src/
       analyze/route.js ← AI analysis proxy (correct)
       chat/route.js    ← AI chat proxy (correct)
   components/
-    IndicationGapIntelligence.jsx  ← 1,925 lines — ENTIRE APP IN ONE FILE
+    ExpandRx.jsx  ← 1,925 lines — ENTIRE APP IN ONE FILE
 ```
 
 **P0 — Monolithic component:** 1,925-line single JSX file contains data constants, PTRS engine, scoring functions, 6+ view renderers, and all state. Impossible to code-split. First-paint loads the entire application regardless of which view is active. Estimated 40-60% unnecessary JS on initial load.
@@ -41,11 +41,11 @@ src/
 
 ❌ **Inline styles everywhere** — 200+ `style={{}}` props. No design tokens, no CSS variables. Changing any spacing or color requires a grep-and-replace across 1,925 lines. Typography inconsistencies (fontSize 9/10/11/13/18 scattered without a scale).
 
-❌ **Default card pattern** — Every gap card uses `background: #12121a, border: 1px solid #1e1e2e, borderRadius: 10, padding: 16`. This is the IGI equivalent of Bootstrap cards. No visual hierarchy between card types.
+❌ **Default card pattern** — Every gap card uses `background: #12121a, border: 1px solid #1e1e2e, borderRadius: 10, padding: 16`. This is the ExpandRx equivalent of Bootstrap cards. No visual hierarchy between card types.
 
 ❌ **No data visualization** — Heatmap view is an HTML table with colored cells — not a heatmap. Comparator view is 4 side-by-side divs with ScoreBars — not a comparison chart. Portfolio view is text bullets — not analytics.
 
-❌ **Viability tags inconsistent with RobicDirect** — IGI uses capital-first "Excellent/Strong/Moderate/Low" in rendering but the scoring comment says old 3-tier. RobicDirect canonicalized to lowercase `excellent/strong/moderate/low`. Cross-tool inconsistency.
+❌ **Viability tags inconsistent with RobicDirect** — ExpandRx uses capital-first "Excellent/Strong/Moderate/Low" in rendering but the scoring comment says old 3-tier. RobicDirect canonicalized to lowercase `excellent/strong/moderate/low`. Cross-tool inconsistency.
 
 ❌ **Score bars as the only viz** — `<ScoreBar>` (5px horizontal progress bar) is used for ALL 4 scoring dimensions. Every gap looks identical. No visual grammar distinguishing evidence strength from market breadth from regulatory confidence.
 
@@ -104,18 +104,18 @@ src/
 - AI chat fallback responses are substantive, not generic
 
 **Issues:**
-- App title "Indication Gap Intelligence | L99 Panel Analysis" — inconsistent with RobicDirect brand voice (RD uses restrained, product-first names)
+- App title "ExpandRx | L99 Panel Analysis" — inconsistent with RobicDirect brand voice (RD uses restrained, product-first names)
 - "v2.0 + PTRS" tag on the logo is AI-SaaS signaling (feature-list in the logo)
-- "Indication Gap Intelligence" as logo text is descriptive, not brand-distinctive
+- "ExpandRx" as logo text is descriptive, not brand-distinctive
 - Copy in L99 panel fallback responses occasionally slips into "first-mover advantage" clichés
 
 ---
 
 ## Data Integrity Issues
 
-**P1 — Country set mismatch:** IGI tracks 12 countries; RobicDirect tracks 20. Same ExpandRX project, different geography. Canada-specific gaps not consistent between tools.
+**P1 — Country set mismatch:** ExpandRx tracks 12 countries; RobicDirect tracks 20. Same ExpandRx project, different geography. Canada-specific gaps not consistent between tools.
 
-**P1 — Scoring methodology divergence:** IGI composite = evidence(20%) + breadth(15%) + regulatory(15%) + commercial(15%) + ptrs(15%) + unmet(10%) + competitive(10%). RobicDirect = evidence(25%) + breadth(15%) + regulatory(20%) + commercial(20%) + marketValue(20%). Different weights, different dimensions. A competitive intel director using both tools gets contradictory gap rankings for the same molecule.
+**P1 — Scoring methodology divergence:** ExpandRx composite = evidence(20%) + breadth(15%) + regulatory(15%) + commercial(15%) + ptrs(15%) + unmet(10%) + competitive(10%). RobicDirect = evidence(25%) + breadth(15%) + regulatory(20%) + commercial(20%) + marketValue(20%). Different weights, different dimensions. A competitive intel director using both tools gets contradictory gap rankings for the same molecule.
 
 **P2 — Static data staleness:** COMPETITIVE_PIPELINE hardcoded in JSX. No refresh mechanism. No timestamp. Drug approvals change weekly.
 
@@ -123,7 +123,7 @@ src/
 
 ## Verdict
 
-The current IGI is a well-conceived analytical engine with a credible data model (PTRS, unmet need, competitive density). The bones are right. But it's built as a prototype, not a war-gaming platform. The monolithic architecture, absence of real charts, and inline-style system all need rebuilding before Phase 6. The PROPOSAL should address these in the correct order: architecture → chart library → design system → surfaces → motion.
+The current ExpandRx is a well-conceived analytical engine with a credible data model (PTRS, unmet need, competitive density). The bones are right. But it's built as a prototype, not a war-gaming platform. The monolithic architecture, absence of real charts, and inline-style system all need rebuilding before Phase 6. The PROPOSAL should address these in the correct order: architecture → chart library → design system → surfaces → motion.
 
 **P0 items to fix before anything else:**
 1. Decompose 1,925-line component into route-split modules with `dynamic()` imports
