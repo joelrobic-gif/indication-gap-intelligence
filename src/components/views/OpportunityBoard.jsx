@@ -68,7 +68,7 @@ export function OpportunityBoard({ cases, onOpenCase, onTogglePin }) {
         <div>
           <h2 style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-2xl)", fontWeight: 700, color: "var(--text-primary)", lineHeight: 1 }}>Opportunity business cases</h2>
           <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
-            {cases.length} molecules ranked · {priorityCount} flagged priority · best case per molecule
+            {cases.length.toLocaleString()} ranked opportunity cases (best per company × molecule) · {priorityCount} flagged priority
           </div>
         </div>
       </div>
