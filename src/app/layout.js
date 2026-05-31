@@ -1,15 +1,16 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "ExpandRx | L99 Panel Analysis",
-  description: "ExpandRx — cross-reference global drug indications across 12 jurisdictions with AI-powered L99 multi-panel analysis. PTRS scoring, competitive pipeline intelligence, portfolio analytics, and natural language querying.",
-  keywords: "ExpandRx, pharmaceutical intelligence, indication gap, PTRS, drug approval, regulatory, clinical trials, competitive landscape, portfolio analytics",
+  title: "ExpandRx — Indication-Expansion Intelligence",
+  description: "ExpandRx turns the global drug-approval map into ranked, risk-adjusted (rNPV) indication-expansion opportunities and committee-ready business cases. Demonstration platform on an illustrative dataset.",
+  keywords: "ExpandRx, indication expansion, drug repurposing, rNPV, PTRS, regulatory intelligence, pharmaceutical business development",
   openGraph: {
-    title: "ExpandRx v2.0",
-    description: "ExpandRx — AI-powered pharma intelligence platform. PTRS engine, competitive radar, portfolio optimizer.",
+    title: "ExpandRx — Indication-Expansion Intelligence",
+    description: "From the global approval map to a costed, decision-ready business case. Clarity of signal for drug repurposing.",
     type: "website",
   },
-  robots: { index: true, follow: true },
+  // Demonstration build on an illustrative dataset — keep out of search indexes.
+  robots: { index: false, follow: false },
 };
 
 export const viewport = {

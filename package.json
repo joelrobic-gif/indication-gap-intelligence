@@ -1,13 +1,14 @@
 {
   "name": "expandrx",
   "version": "2.0.0",
-  "description": "ExpandRx — cross-reference global drug indications with AI-powered L99 Panel analysis. PTRS, competitive intelligence, portfolio analytics.",
+  "description": "ExpandRx — indication-expansion intelligence: ranked, risk-adjusted (rNPV) drug-repurposing opportunities and committee-ready business cases.",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "node --test"
   },
   "dependencies": {
     "@observablehq/plot": "^0.6.17",

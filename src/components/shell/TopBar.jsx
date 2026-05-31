@@ -5,7 +5,7 @@
 export function TopBar({
   companies, companyId, onCompanyChange,
   countries, homeCountry, onCountryChange,
-  view, onViewChange,
+  view, onViewChange, onHome,
   watchlistCount, compareCount,
   searchQuery, onSearchChange,
   showCompanyControls = true,
@@ -29,14 +29,19 @@ export function TopBar({
       height: 52, position: "sticky", top: 0, zIndex: 100,
       flexWrap: "nowrap",
     }}>
-      {/* Logo */}
-      <div style={{
-        fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 700,
-        color: "var(--brand-gold)", whiteSpace: "nowrap", letterSpacing: "-0.01em",
-        fontOpticalSizing: "auto", flexShrink: 0,
-      }}>
+      {/* Logo — click to return to landing */}
+      <button
+        onClick={onHome}
+        title="Home"
+        style={{
+          fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 700,
+          color: "var(--brand-gold)", whiteSpace: "nowrap", letterSpacing: "-0.01em",
+          fontOpticalSizing: "auto", flexShrink: 0,
+          background: "none", border: "none", padding: 0, cursor: "pointer",
+        }}
+      >
         ExpandRx
-      </div>
+      </button>
 
       {/* Divider */}
       <div style={{ width: 1, height: 20, background: "var(--surface-border)", flexShrink: 0 }} />

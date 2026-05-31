@@ -25,6 +25,7 @@ import { Funnel } from "./views/Funnel";
 import { MissionControl } from "./views/MissionControl";
 import { OpportunityBoard } from "./views/OpportunityBoard";
 import { CaseReport } from "./views/CaseReport";
+import { Landing } from "./views/Landing";
 
 // Legacy views (dynamic — code-split)
 const Dashboard  = dynamic(() => import("./views/Dashboard").then(m => ({ default: m.Dashboard })),   { ssr: false });
@@ -37,7 +38,7 @@ const ENGINE_VIEWS = new Set(["funnel", "mission", "opportunities"]);
 export default function AppShell() {
   // ── Shared state ──
   const [homeCountry, setHomeCountry] = useState("CA");
-  const [view, setView] = useState("funnel");
+  const [view, setView] = useState("landing");
   const [companyId, setCompanyId] = useState(COMPANIES[0].id);
 
   // ── Autonomous engine (global) ──
@@ -105,6 +106,11 @@ export default function AppShell() {
 
   const isEngineView = ENGINE_VIEWS.has(view);
 
+  // ── Marketing landing — full-bleed, no app chrome (engine still runs in bg) ──
+  if (view === "landing") {
+    return <Landing onEnter={() => setView("funnel")} />;
+  }
+
   return (
     <div style={{ background: "var(--surface-base)", minHeight: "100vh", color: "var(--text-primary)" }}>
       {toast && <Toast message={toast} />}
@@ -112,7 +118,7 @@ export default function AppShell() {
       <TopBar
         companies={COMPANIES} companyId={companyId} onCompanyChange={setCompanyId}
         countries={COUNTRIES} homeCountry={homeCountry} onCountryChange={setHomeCountry}
-        view={view} onViewChange={setView}
+        view={view} onViewChange={setView} onHome={() => setView("landing")}
         watchlistCount={watchlistCount} compareCount={compareSelection.length}
         searchQuery={searchQuery} onSearchChange={setSearchQuery}
         showCompanyControls={!isEngineView}

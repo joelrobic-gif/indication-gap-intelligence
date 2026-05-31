@@ -348,6 +348,15 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
         <button onClick={() => onTogglePin(c.key)} style={tbtn(c.pinned, GOLD)}>⚲ {c.pinned ? "Pinned" : "Pin"}</button>
       </div>
 
+      {/* Honest provenance banner — visible on screen + print */}
+      <div className="report-synthetic-banner" style={{
+        background: "#3a2e12", borderBottom: "1px solid #5a4a1e", color: "#e8d9a8",
+        font: "600 11px var(--font-mono)", letterSpacing: "0.5px", textAlign: "center",
+        padding: "6px 16px",
+      }}>
+        ILLUSTRATIVE / SYNTHETIC DATASET — figures are model-generated for demonstration, not sourced regulatory records. Not for investment or clinical decisions.
+      </div>
+
       <div style={{ padding: "32px 16px 0" }}>
         {/* ─── PAGE 1 · COVER ─── */}
         <section className="report-page" style={{ background: PAPER, width: "100%", maxWidth: 820, margin: "0 auto 28px", minHeight: 1040, boxShadow: "0 8px 40px rgba(0,0,0,0.35)", padding: 0, position: "relative", overflow: "hidden", color: INK }}>
@@ -637,7 +646,7 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
           <H3>Phased plan</H3>
           <Table head={["Horizon", "Activity"]} rows={plan} />
           <H3>Methodology & data provenance</H3>
-          <P>Scores derive from a transparent 7-factor model (evidence, global breadth, regulatory precedent, commercial, PTRS, unmet need, competitive whitespace) over a curated + AI-generated dataset of 123 molecules across 20 regulatory jurisdictions. PTRS uses BIO/QLS therapeutic-area phase-transition base rates. <strong style={{ color: INK }}>All factual claims — approvals, trials, competitors, populations — must be validated against primary sources before any investment decision.</strong></P>
+          <P>Scores derive from a transparent 7-factor model (evidence, global breadth, regulatory precedent, commercial, PTRS, unmet need, competitive whitespace) over an illustrative dataset of 1,700+ molecules across 20 regulatory jurisdictions. PTRS uses BIO/QLS therapeutic-area phase-transition base rates. <strong style={{ color: INK }}>All factual claims — approvals, trials, competitors, populations — must be validated against primary sources before any investment decision.</strong></P>
         </Page>
       </div>
     </div>
