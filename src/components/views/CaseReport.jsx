@@ -12,6 +12,7 @@ import { getCountry, getMarketValue, COUNTRIES } from "../../lib/data/countries"
 import { PTRS_BASE_RATES, evidenceTierLabel } from "../../lib/data/ptrs";
 import { WEIGHTS } from "../../lib/scoring";
 import { ASSUMPTIONS } from "../../lib/engine/assumptions";
+import { OUTCOMES, houseAdjustedPTRS } from "../../lib/engine/outcomes";
 import { CompanyLogo } from "../primitives/CompanyLogo";
 
 // ── Light report palette ──
@@ -265,7 +266,7 @@ function Tornado({ sensitivity, base }) {
 }
 
 // ════════════════════ MAIN REPORT ════════════════════
-export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, onSetNote, onTogglePin }) {
+export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, onSetNote, onTogglePin, onSetOutcome, outcomeStats }) {
   if (!caseObj) return null;
   const c = caseObj;
   const g = c.headline;
@@ -346,6 +347,17 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
           <button key={id} onClick={() => onSetStatus(c.key, id)} style={tbtn(c.status === id, col)}>{c.status === id ? "✓ " : ""}{label}</button>
         ))}
         <button onClick={() => onTogglePin(c.key)} style={tbtn(c.pinned, GOLD)}>⚲ {c.pinned ? "Pinned" : "Pin"}</button>
+        {onSetOutcome && (
+          <>
+            <span style={{ width: 1, height: 18, background: "#2a2d35", margin: "0 2px" }} />
+            <span style={{ font: "600 9px var(--font-mono)", color: "#7a8194", letterSpacing: "1px" }}>OUTCOME</span>
+            {OUTCOMES.map(o => (
+              <button key={o.id} onClick={() => onSetOutcome(c.key, o.id)} style={tbtn(c.outcome === o.id, o.color)}>
+                {c.outcome === o.id ? "✓ " : ""}{o.label}
+              </button>
+            ))}
+          </>
+        )}
       </div>
 
       {/* Honest provenance banner — visible on screen + print */}
@@ -478,6 +490,19 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
             <div style={{ flex: 1 }}>
               <H3>Evidence grade</H3>
               <P>Highest evidence tier: <strong style={{ color: INK }}>{evidenceTierLabel(g.evidence)}</strong> ({g.evidence}). The probability of technical and regulatory success (PTRS) is modelled from BIO/QLS phase-transition base rates for the <strong style={{ color: INK }}>{g.ta}</strong> therapeutic area (overall likelihood of approval {Math.round(rates.overall_loa * 100)}% from Phase I), conditioned on the current phase.</P>
+              {(() => {
+                const adj = houseAdjustedPTRS(g.ptrs.ptrs, g.ta, outcomeStats);
+                if (!adj) return null;
+                return (
+                  <div style={{ marginTop: 10, padding: "10px 14px", border: `1px solid ${GOLD}`, background: "#fbf3e1", borderRadius: 8 }}>
+                    <div style={{ font: "700 9px var(--font-mono)", color: GOLD, letterSpacing: "1px" }}>★ HOUSE-ADJUSTED PTRS</div>
+                    <div style={{ font: "400 12px var(--font-body)", color: INK, marginTop: 4 }}>
+                      Blending the model prior with this desk&apos;s realized {g.ta} outcomes ({adj.n} decided, {(adj.observed * 100).toFixed(0)}% approved):
+                      <strong> {(adj.value * 100).toFixed(0)}%</strong> (model {ptrsPct}%). This is the compounding edge — the more outcomes recorded, the more the platform reflects your real-world hit rate.
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
           <H3>Phase progression & timeline</H3>

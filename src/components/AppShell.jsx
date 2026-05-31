@@ -174,6 +174,7 @@ export default function AppShell() {
         <CaseReport
           caseObj={selectedCase} homeCountry={homeCountry} now={now} onClose={closeCase}
           onSetStatus={engine.setStatus} onSetNote={engine.setNote} onTogglePin={engine.togglePin}
+          onSetOutcome={engine.setOutcome} outcomeStats={engine.outcomeStats}
         />
       )}
     </div>

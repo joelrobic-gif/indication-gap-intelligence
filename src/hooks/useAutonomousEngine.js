@@ -15,8 +15,9 @@ import { useReducer, useEffect, useMemo, useRef, useCallback } from "react";
 import { computeUniverse } from "../lib/data/universe";
 import { DEPARTMENTS } from "../lib/engine/departments";
 import { runFunnel, funnelTiers, buildBusinessCases } from "../lib/engine/funnel";
+import { buildOutcomeStats } from "../lib/engine/outcomes";
 
-const STORAGE_KEY = "igi-engine-v4";
+const STORAGE_KEY = "igi-engine-v5";
 const FEED_CAP = 64;
 const DEFAULT_SPEED = 1200;
 
@@ -105,6 +106,12 @@ function reducer(state, action) {
       const cur = state.humanActions[key] || {};
       return { ...state, humanActions: { ...state.humanActions, [key]: { ...cur, pinnedAt: cur.pinnedAt ? null : action.payload.ts } } };
     }
+    case "SET_OUTCOME": {
+      const { key, outcome } = action.payload;
+      const cur = state.humanActions[key] || {};
+      const next = cur.outcome === outcome ? null : outcome; // toggle
+      return { ...state, humanActions: { ...state.humanActions, [key]: { ...cur, outcome: next, outcomeAt: next ? action.payload.ts : null } } };
+    }
     default: return state;
   }
 }
@@ -118,6 +125,10 @@ export function useAutonomousEngine(homeCountry) {
   const cases = useMemo(
     () => buildBusinessCases(universe, homeCountry, state.humanActions),
     [universe, homeCountry, state.humanActions]
+  );
+  const outcomeStats = useMemo(
+    () => buildOutcomeStats(cases, state.humanActions),
+    [cases, state.humanActions]
   );
 
   const universeRef = useRef(universe);
@@ -187,10 +198,11 @@ export function useAutonomousEngine(homeCountry) {
     setStatus: (key, status) => dispatch({ type: "SET_STATUS", payload: { key, status } }),
     setNote: (key, note) => dispatch({ type: "SET_NOTE", payload: { key, note } }),
     togglePin: (key) => dispatch({ type: "TOGGLE_PIN", payload: { key, ts: Date.now() } }),
+    setOutcome: (key, outcome) => dispatch({ type: "SET_OUTCOME", payload: { key, outcome, ts: Date.now() } }),
   }), [tick]);
 
   return {
-    universe, tiers, cases,
+    universe, tiers, cases, outcomeStats,
     running: state.running, speedMs: state.speedMs,
     cycles: state.cycles, processedCount: state.processedCount,
     feed: state.feed, deptStats: state.deptStats, startedAt: state.startedAt,

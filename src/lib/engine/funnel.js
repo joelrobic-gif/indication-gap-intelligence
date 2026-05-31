@@ -149,6 +149,8 @@ export function buildBusinessCases(universe, homeCountry, humanActions = {}) {
       status: human.status || null,     // 'approved' | 'flagged' | 'reviewing' | null
       note: human.note || "",
       pinned: !!human.pinnedAt,
+      outcome: human.outcome || null,   // 'filed' | 'approved' | 'rejected' | 'parked' | null
+
     });
   }
 

@@ -24,6 +24,41 @@ const STATUS_META = {
 
 const RENDER_CAP = 600;
 
+const exportBtn = {
+  background: "transparent", border: "1px solid var(--surface-border)", borderRadius: "var(--radius-sm)",
+  padding: "5px 10px", color: "var(--text-secondary)", fontFamily: "var(--font-mono)", fontSize: 10,
+  letterSpacing: 0.5, cursor: "pointer",
+};
+
+function exportCases(cases, fmt) {
+  if (typeof window === "undefined" || !cases.length) return;
+  const rows = cases.map(c => ({
+    rank: c.rank, company: c.companyName, molecule: c.molecule, atc: c.atc, ta: c.ta,
+    indication: c.headline.indication, composite: c.bestComposite,
+    ptrsPct: Math.round(c.headline.ptrs.ptrs * 100),
+    rNPV_USD: c.financials ? Math.round(c.financials.rnpv) : "",
+    peakSales_USD: c.financials ? Math.round(c.financials.peakSales) : "",
+    action: c.action, verified: c.headline.provenance?.confidence === "verified" ? "yes" : "no",
+    source: c.headline.provenance?.source || "", nctId: c.headline.provenance?.nctId || "",
+    status: c.status || "", outcome: c.outcome || "",
+  }));
+  let blob, name;
+  if (fmt === "json") {
+    blob = new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" });
+    name = "expandrx-opportunities.json";
+  } else {
+    const cols = Object.keys(rows[0]);
+    const esc = (v) => `"${String(v).replace(/"/g, '""')}"`;
+    const csv = [cols.join(","), ...rows.map(r => cols.map(k => esc(r[k])).join(","))].join("\n");
+    blob = new Blob([csv], { type: "text/csv" });
+    name = "expandrx-opportunities.csv";
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = name; a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function OpportunityBoard({ cases, onOpenCase, onTogglePin }) {
   const [sortBy, setSortBy] = useState("rank");
   const [company, setCompany] = useState("all");
@@ -70,6 +105,10 @@ export function OpportunityBoard({ cases, onOpenCase, onTogglePin }) {
           <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
             {cases.length.toLocaleString()} ranked opportunity cases (best per company × molecule) · {priorityCount} flagged priority
           </div>
+        </div>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button onClick={() => exportCases(shown, "csv")} style={exportBtn} title="Export shown cases to CSV">⤓ CSV</button>
+          <button onClick={() => exportCases(shown, "json")} style={exportBtn} title="Export shown cases to JSON">⤓ JSON</button>
         </div>
       </div>
 
