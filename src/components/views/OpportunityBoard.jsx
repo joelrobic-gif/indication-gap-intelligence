@@ -128,6 +128,7 @@ const CaseCard = memo(function CaseCard({ c, onClick, onPin, entryDelay }) {
           <CompanyLogo companyId={c.companyId} companyName={c.companyName} size={18} showName />
         </div>
         <div style={{ display: "flex", gap: 6, alignItems: "center" }} onClick={e => e.stopPropagation()}>
+          {c.headline.provenance?.confidence === "verified" && <span title={`Cited: ${c.headline.provenance.source}${c.headline.provenance.nctId ? " · " + c.headline.provenance.nctId : ""}`} style={{ fontFamily: "var(--font-mono)", fontSize: 7, color: "var(--viability-excellent)", border: "1px solid var(--viability-excellent)", borderRadius: 2, padding: "1px 4px", letterSpacing: 0.5, background: "rgba(52,211,153,0.08)" }}>✓ CITED</span>}
           {c.priority && <span style={{ fontFamily: "var(--font-mono)", fontSize: 7, color: "var(--brand-gold)", border: "1px solid var(--brand-gold)", borderRadius: 2, padding: "1px 4px", letterSpacing: 0.5 }}>PRIORITY</span>}
           <button onClick={onPin} title={c.pinned ? "Unpin" : "Pin to top"} style={{ background: "none", border: "none", cursor: "pointer", color: c.pinned ? "var(--brand-gold)" : "var(--surface-border)", fontSize: 14, padding: 0 }}>⚲</button>
         </div>

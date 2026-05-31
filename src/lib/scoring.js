@@ -117,6 +117,14 @@ export function scoreGap(indication, homeCountry, molecule) {
     scores: { ...scores, composite },
     // PTRS (with CI)
     ptrs: ptrsData,
+    // Provenance — present on rows from the verified slice; null = illustrative
+    provenance: indication.confidence === "verified" ? {
+      confidence: "verified",
+      source:    indication.source || "",
+      sourceUrl: indication.sourceUrl || "",
+      nctId:     indication.nctId || "",
+      asOf:      indication.asOf || "",
+    } : null,
     // Context
     unmetNeed:        unmet,
     competitors,

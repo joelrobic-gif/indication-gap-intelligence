@@ -452,6 +452,20 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
           />
           <H3>Regulatory pathway</H3>
           <P>With {g.approvedIn.length} prior {g.approvedIn.length === 1 ? "approval" : "approvals"}, the recommended route is a <strong style={{ color: INK }}>bridging / bibliographic submission</strong> to {getCountry(homeCountry).authority} ({homeName}), citing the foreign approval packages and published evidence rather than repeating pivotal trials. Regulatory-precedent score: <strong style={{ color: INK }}>{g.scores.regulatory}/100</strong>; global-breadth score: <strong style={{ color: INK }}>{g.scores.breadth}/100</strong>.</P>
+          {g.provenance?.confidence === "verified" ? (
+            <div style={{ marginTop: 12, padding: "10px 14px", border: `1px solid ${V.excellent}`, background: "#e6f4ee", borderRadius: 8 }}>
+              <div style={{ font: "700 9px var(--font-mono)", color: V.excellent, letterSpacing: "1px" }}>✓ SOURCE-VERIFIED</div>
+              <div style={{ font: "400 12px var(--font-body)", color: INK, marginTop: 4 }}>
+                This indication is corroborated against a primary source: <strong>{g.provenance.source}</strong>
+                {g.provenance.asOf ? ` (${g.provenance.asOf})` : ""}{g.provenance.nctId ? ` · ${g.provenance.nctId}` : ""}.
+                {g.provenance.sourceUrl ? <> <span style={{ color: SUB }}>{g.provenance.sourceUrl}</span></> : null}
+              </div>
+            </div>
+          ) : (
+            <div style={{ marginTop: 12, padding: "8px 14px", border: `1px solid ${LINE}`, background: PAPER2, borderRadius: 8, font: "400 11px var(--font-body)", color: FAINT }}>
+              Illustrative record — not yet verified against a primary regulatory/clinical source.
+            </div>
+          )}
         </Page>
 
         {/* ─── PAGE 5 · CLINICAL EVIDENCE & PTRS ─── */}
