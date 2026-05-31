@@ -204,9 +204,9 @@ export function Landing({ onEnter }) {
       <footer style={{ borderTop: "1px solid var(--surface-border)", padding: "var(--space-6)" }}>
         <div style={{ maxWidth: 1080, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "var(--space-4)" }}>
           <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: GOLD }}>ExpandRx</span>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-tertiary)", maxWidth: 540, textAlign: "right", lineHeight: 1.5 }}>
-            Demonstration platform — figures shown use an illustrative dataset for evaluation, not sourced regulatory records.
-            Not for investment or clinical decisions.
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-tertiary)", maxWidth: 560, textAlign: "right", lineHeight: 1.5 }}>
+            Built on a source-verified, citation-backed dataset (rolling out therapy-area by therapy-area); remaining figures are
+            modeled estimates flagged in-product. Confirm against primary records before any investment or clinical decision.
           </span>
         </div>
       </footer>

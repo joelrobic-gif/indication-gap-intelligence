@@ -360,14 +360,22 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
         )}
       </div>
 
-      {/* Honest provenance banner — visible on screen + print */}
-      <div className="report-synthetic-banner" style={{
-        background: "#3a2e12", borderBottom: "1px solid #5a4a1e", color: "#e8d9a8",
-        font: "600 11px var(--font-mono)", letterSpacing: "0.5px", textAlign: "center",
-        padding: "6px 16px",
-      }}>
-        ILLUSTRATIVE / SYNTHETIC DATASET — figures are model-generated for demonstration, not sourced regulatory records. Not for investment or clinical decisions.
-      </div>
+      {/* Per-case provenance banner — accurate, not alarmist; visible on screen + print */}
+      {g.provenance?.confidence === "verified" ? (
+        <div className="report-synthetic-banner" style={{
+          background: "#103024", borderBottom: "1px solid #1c7a52", color: "#cfeede",
+          font: "600 11px var(--font-mono)", letterSpacing: "0.5px", textAlign: "center", padding: "6px 16px",
+        }}>
+          ✓ SOURCE-VERIFIED — this opportunity is corroborated against a primary source ({g.provenance.source}{g.provenance.nctId ? " · " + g.provenance.nctId : ""}). Always confirm before an investment or clinical decision.
+        </div>
+      ) : (
+        <div className="report-synthetic-banner" style={{
+          background: "#3a2e12", borderBottom: "1px solid #5a4a1e", color: "#e8d9a8",
+          font: "600 11px var(--font-mono)", letterSpacing: "0.5px", textAlign: "center", padding: "6px 16px",
+        }}>
+          MODELED ESTIMATE — this indication is not yet source-verified; validate against primary records (regulator label / ClinicalTrials.gov) before use.
+        </div>
+      )}
 
       <div style={{ padding: "32px 16px 0" }}>
         {/* ─── PAGE 1 · COVER ─── */}

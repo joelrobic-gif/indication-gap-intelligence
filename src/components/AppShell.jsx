@@ -26,6 +26,7 @@ import { MissionControl } from "./views/MissionControl";
 import { OpportunityBoard } from "./views/OpportunityBoard";
 import { CaseReport } from "./views/CaseReport";
 import { Landing } from "./views/Landing";
+import { WhyExpandRx } from "./views/WhyExpandRx";
 
 // Legacy views (dynamic — code-split)
 const Dashboard  = dynamic(() => import("./views/Dashboard").then(m => ({ default: m.Dashboard })),   { ssr: false });
@@ -121,7 +122,7 @@ export default function AppShell() {
         view={view} onViewChange={setView} onHome={() => setView("landing")}
         watchlistCount={watchlistCount} compareCount={compareSelection.length}
         searchQuery={searchQuery} onSearchChange={setSearchQuery}
-        showCompanyControls={!isEngineView}
+        showCompanyControls={!isEngineView && view !== "why"}
       />
 
       {/* Engine control strip — only on swarm surfaces */}
@@ -150,6 +151,7 @@ export default function AppShell() {
         {view === "opportunities" && (
           <OpportunityBoard cases={engine.cases} onOpenCase={openCase} onTogglePin={engine.togglePin} />
         )}
+        {view === "why" && <WhyExpandRx />}
 
         {/* ── Legacy company-scoped views ── */}
         {view === "explorer" && (

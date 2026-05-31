@@ -14,6 +14,7 @@ export function TopBar({
     { id: "funnel",        label: "Funnel" },
     { id: "mission",       label: "Mission Control" },
     { id: "opportunities", label: "Opportunities" },
+    { id: "why",           label: "Why ExpandRx" },
     { id: "explorer",      label: "Explorer" },
     { id: "heatmap",       label: "Heatmap" },
     { id: "portfolio",     label: "Portfolio" },
