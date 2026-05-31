@@ -22,9 +22,14 @@ export const ASSUMPTIONS = {
   ptrsSwingPts: 12,         // ± absolute points on PTRS
   costIncurrenceProb: 0.90, // remaining dev/filing spend is incurred ~regardless of outcome → risk-adjust at 90%, not PTRS
 
-  // — R&D cost: REMAINING cost-to-approval (USD millions) by current highest phase (panel) —
-  devCostUSD_M_byPhase: { "Phase III": 2.5, "Phase II": 5, "Phase I": 8, "Preclinical": 12, "Approved": 0.4 },
-  filingCostUSD_M: 0.6,
+  // — R&D cost: REMAINING cost-to-approval (USD millions) by current highest phase —
+  // Phase-2 recalibration (2026): raised from the panel's initial floor, which
+  // understated real spend and biased nearly every case to "advance/fast-track".
+  // Anchored to 505(b)(2)/repurposing benchmarks: dossier-only when already
+  // approved elsewhere; one confirmatory/bridging study otherwise; a full local
+  // efficacy program from preclinical. See `sources` below.
+  devCostUSD_M_byPhase: { "Phase III": 8, "Phase II": 25, "Phase I": 45, "Preclinical": 90, "Approved": 2 },
+  filingCostUSD_M: 2,
 
   // — Commercial cost (panel) —
   sgaPctOfSales: 30,        // launch + SG&A as % of net sales (annualized over the window)
@@ -47,4 +52,14 @@ export const ASSUMPTIONS = {
   defaultAddressableGlobal: 5_000_000,
 
   rnpvMethod: "rNPV = PTRS × NPV(post-approval net commercial cash flows) − incurrence-probability × NPV(remaining development + filing cost), discounted at WACC. Post-approval cash flows are weighted by PTRS at the single regulatory gate; remaining spend (incurred largely regardless of outcome) is weighted at 90%. WACC is kept as pure cost-of-capital to avoid double-counting program risk already carried by PTRS.",
+
+  // Versioned, citation-tagged provenance for the benchmark inputs above.
+  assumptionsVersion: "2026.2",
+  sources: [
+    { input: "PTRS / phase-transition rates", basis: "BIO / QLS Advisors / Informa Pharma Intelligence — Clinical Development Success Rates (disease-area LoA).", note: "Applied at a single regulatory gate for an already-approved molecule, not the NCE Phase-1→approval rate." },
+    { input: "Remaining dev cost by phase", basis: "DiMasi/Tufts per-phase out-of-pocket, scaled down for 505(b)(2)/bibliographic reuse; repurposing-cost literature (Nosengo, Nature 2016; Cures Within Reach / Every Cure).", note: "Approved-elsewhere ≈ dossier localization (no new trial); Phase III ≈ bridging/RWE add-on; earlier phases ≈ one local efficacy study." },
+    { input: "WACC 13% / exclusivity 3y / erosion 45%/yr", basis: "Small specialty/generic single-product cost-of-capital; generic price-erosion comps (40–60% retention/yr post-LoE); no hard IP on a bibliographic label.", note: "WACC pure; program risk carried by PTRS." },
+    { input: "SG&A 30% of sales / COGS by TA", basis: "Large-cap pharma SG&A/sales (~25–30%) on shared infrastructure for a single-market label extension; small-molecule COGS benchmarks.", note: "Launch years front-load; annualized over the window." },
+    { input: "Net price / peak penetration / years-to-peak by TA", basis: "EvaluatePharma-style ramp curves + therapy-area net-price bands (oncology/heme high; CV/CNS/GI low).", note: "Illustrative; replace with client market research per asset." },
+  ],
 };

@@ -5,8 +5,8 @@
 //   - ExpandRx: technical feasibility scoring (can we get this approved?)
 // Viability labels harmonized with RobicDirect: lowercase (excellent/strong/moderate/low).
 
-import { COMPETITIVE_PIPELINE, UNMET_NEED } from "./data/pipeline";
-import { calculatePTRS } from "./data/ptrs";
+import { COMPETITIVE_PIPELINE, UNMET_NEED } from "./data/pipeline.js";
+import { calculatePTRS } from "./data/ptrs.js";
 
 // ── Composite weights (must sum to 1.0) ──
 export const WEIGHTS = {

@@ -8,8 +8,8 @@
 // All cash flows discounted at WACC. Revenues risk-adjusted by PTRS at the
 // single regulatory gate; remaining spend taken near-full (incurred regardless).
 
-import { MARKET_VALUE_INDEX, getMarketValue } from "../data/countries";
-import { ASSUMPTIONS } from "./assumptions";
+import { MARKET_VALUE_INDEX, getMarketValue } from "../data/countries.js";
+import { ASSUMPTIONS } from "./assumptions.js";
 
 const SUM_INDEX = Object.values(MARKET_VALUE_INDEX).reduce((s, v) => s + v, 0);
 
