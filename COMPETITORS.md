@@ -124,6 +124,30 @@ Cortellis** (scope overlap + best acquirer fit). Biggest structural risk: any in
 "business-case generator" onto data they already own — so ExpandRx's window is **provenance +
 a signed pilot + the outcome moat**, fast (see `ACQUISITION.md`).
 
+## 11. Cost comparison
+
+Most vendors keep pricing confidential (custom enterprise contracts); figures below are
+research estimates except DrugPatentWatch (publicly listed).
+
+| Player | Annual cost (est.) | Model |
+|---|---|---|
+| IQVIA | ~$50k/mo+ enterprise → **$600k–$1M+/yr** (≈$5–15k/mo for 10 users) | Custom, seats + modules |
+| Clarivate / Cortellis | **six figures/yr** (modules ~$10–20k/seat; enterprise $50–100k+) | Custom, per-module |
+| Citeline (Pharmaprojects) | **six figures/yr** | Custom |
+| Evaluate | undisclosed, six-figure-class | Custom (Norstella) |
+| GlobalData | **$30–80k/yr** | Tiered |
+| DrugPatentWatch | **$3k–8k/yr** + modules ($2–7k ea) — only publicly priced | Self-serve SaaS |
+| Repurposing-AI (Every Cure, Healx, Biovista…) | **N/A** — non-profit / own pipelines / services, not a product you buy | — |
+| Open KGs (DrugBank, Open Targets, DRKG) | **free** | Build-it-yourself |
+| **★ ExpandRx** | **~CAD $40–75k paid POC** (`PILOT.md`), then a focused annual license well below the incumbent stacks | Pilot → license |
+
+**The number that matters:** large pharma runs a *best-of-breed stack* (IQVIA + Cortellis +
+Citeline + Evaluate) commonly totalling **$200k–$1M+/yr** — and the analyst still hand-builds
+the rNPV business case in Excel. ExpandRx's wedge: (1) the **generics/specialty tier** is priced
+out of six-figure stacks; (2) you pay for the **decision** (gap→rNPV→dossier), not another data
+feed. Caveats: incumbents ship **real licensed data** (ExpandRx is illustrative + one verified
+slice today), and the cleanest play is ExpandRx **riding** a feed already licensed, not replacing it.
+
 ---
 
 ### Sources
@@ -138,3 +162,6 @@ a signed pilot + the outcome moat**, fast (see `ACQUISITION.md`).
 - [505(b)(2) IP/commercial strategy — DrugPatentWatch](https://www.drugpatentwatch.com/blog/review-of-drugs-approved-via-the-505b2-pathway-uncovering-drug-development-trends-and-regulatory-requirements/)
 - [Knowledge graphs for drug repurposing — Briefings in Bioinformatics](https://academic.oup.com/bib/article/25/6/bbae461/7774899)
 - [Clarivate alternatives + pricing — Salesmotion](https://salesmotion.io/clarivate-alternatives)
+- [IQVIA pricing — ITQlick](https://www.itqlick.com/ims-health/pricing)
+- [DrugPatentWatch pricing](https://www.drugpatentwatch.com/pricing/)
+- [Cortellis value & pricing — Oreate AI](https://www.oreateai.com/blog/navigating-the-landscape-of-clarivate-cortellis-understanding-its-value-and-pricing/6f2af9e8d3a62235fe38d0234a2598ec)
