@@ -5,22 +5,23 @@
 ## Summary
 | Metric | Value |
 |---|---|
-| Labelled samples (verified rows) | 107 |
-| Base rate (approved somewhere) | 92.5% |
-| Mean predicted PTRS | 68.2% |
-| **Brier score** (lower = better) | **0.1343** |
-| **Expected Calibration Error (ECE)** | **25.1%** |
+| Labelled samples (verified rows) | 673 |
+| Base rate (approved somewhere) | 94.8% |
+| Mean predicted PTRS | 82.1% |
+| **Brier score** (lower = better) | **0.0738** |
+| **Expected Calibration Error (ECE)** | **13.1%** |
 
 ## Reliability table (predicted vs observed)
 | Predicted bin | n | Mean predicted | Observed approved |
 |---|---|---|---|
-| 0.2–0.3 | 2 | 22% | 0% |
-| 0.5–0.6 | 64 | 60% | 92% |
-| 0.6–0.7 | 14 | 63% | 100% |
-| 0.9–1.0 | 27 | 95% | 96% |
+| 0.1–0.2 | 6 | 15% | 100% |
+| 0.2–0.3 | 6 | 21% | 0% |
+| 0.5–0.6 | 159 | 57% | 87% |
+| 0.6–0.7 | 54 | 63% | 91% |
+| 0.9–1.0 | 448 | 95% | 99% |
 
 ## Honest interpretation
-- The verified slice is **outcome-skewed** (base rate 93% — most verified indications are already approved somewhere), so this run principally **validates the harness and the methodology**, not a balanced predictive backtest.
+- The verified slice is **outcome-skewed** (base rate 95% — most verified indications are already approved somewhere), so this run principally **validates the harness and the methodology**, not a balanced predictive backtest.
 - A meaningful calibration requires **negative labels** (failed, withdrawn, or never-approved programs) at comparable volume. The harness computes Brier + ECE the moment such labelled data is added to the verified slice.
 - Roadmap: extend the verified-data pipeline (per `HANDOFF.md` Phase 1) to capture failed/terminated programs (ClinicalTrials.gov terminated status, FDA CRLs) so PTRS can be calibrated against ground truth and the reliability table becomes decision-grade.
 
