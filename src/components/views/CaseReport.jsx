@@ -154,7 +154,7 @@ function Page({ n, total, molecule, children, label, companyId, companyName }) {
       {label && <SectionTitle>{label}</SectionTitle>}
       <div style={{ flex: 1 }}>{children}</div>
       <div style={{ display: "flex", justifyContent: "space-between", borderTop: `1px solid ${LINE}`, paddingTop: 8, marginTop: 24 }}>
-        <span style={{ font: "500 9px var(--font-mono)", color: FAINT }}>Goodman Foundation · Indication Gap Intelligence</span>
+        <span style={{ font: "500 9px var(--font-mono)", color: FAINT }}>ExpandRX · Indication Gap Intelligence</span>
         <span style={{ font: "600 9px var(--font-mono)", color: FAINT }}>{n} / {total}</span>
       </div>
     </section>
@@ -353,7 +353,7 @@ export function CaseReport({ caseObj, homeCountry, now, onClose, onSetStatus, on
         <section className="report-page" style={{ background: PAPER, width: "100%", maxWidth: 820, margin: "0 auto 28px", minHeight: 1040, boxShadow: "0 8px 40px rgba(0,0,0,0.35)", padding: 0, position: "relative", overflow: "hidden", color: INK }}>
           <div style={{ background: NAVY, padding: "56px 56px 40px", color: "#fff" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ font: "700 13px var(--font-display)", color: GOLD, letterSpacing: "0.5px" }}>IGI<span style={{ font: "400 9px var(--font-mono)", color: "#9fb0c8", marginLeft: 8, letterSpacing: "2px" }}>GOODMAN FOUNDATION</span></span>
+              <span style={{ font: "700 13px var(--font-display)", color: GOLD, letterSpacing: "0.5px" }}>IGI<span style={{ font: "400 9px var(--font-mono)", color: "#9fb0c8", marginLeft: 8, letterSpacing: "2px" }}>EXPANDRX</span></span>
               <span style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(255,255,255,0.08)", borderRadius: 8, padding: "5px 10px 5px 6px" }}>
                 <CompanyLogo companyId={c.companyId} companyName={c.companyName} size={22} />
                 <span style={{ font: "600 12px var(--font-body)", color: "#fff" }}>{c.companyName}</span>

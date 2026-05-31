@@ -37,7 +37,7 @@ export function TopBar({
       }}>
         IGI
         <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, fontWeight: 400, color: "var(--text-tertiary)", marginLeft: 6, letterSpacing: 1, verticalAlign: "middle" }}>
-          GOODMAN
+          EXPANDRX
         </span>
       </div>
 

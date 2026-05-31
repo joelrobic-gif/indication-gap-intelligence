@@ -113,7 +113,7 @@ src/
 
 ## Data Integrity Issues
 
-**P1 — Country set mismatch:** IGI tracks 12 countries; RobicDirect tracks 20. Same Goodman project, different geography. Canada-specific gaps not consistent between tools.
+**P1 — Country set mismatch:** IGI tracks 12 countries; RobicDirect tracks 20. Same ExpandRX project, different geography. Canada-specific gaps not consistent between tools.
 
 **P1 — Scoring methodology divergence:** IGI composite = evidence(20%) + breadth(15%) + regulatory(15%) + commercial(15%) + ptrs(15%) + unmet(10%) + competitive(10%). RobicDirect = evidence(25%) + breadth(15%) + regulatory(20%) + commercial(20%) + marketValue(20%). Different weights, different dimensions. A competitive intel director using both tools gets contradictory gap rankings for the same molecule.
 
